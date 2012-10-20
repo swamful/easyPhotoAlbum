@@ -15,7 +15,7 @@
     NSString *geoLongitude;
     NSDate *time;
     NSString *device;
-    NSURL *assetUrl;
+    NSString *assetUrl;
     UIImage *thumbImage;
     UIImage *image;
 }
@@ -25,7 +25,7 @@
 @property (nonatomic, strong) NSString *geoLongitude;
 @property (nonatomic, strong) NSDate *time;
 @property (nonatomic, strong) NSString *device;
-@property (nonatomic, strong) NSURL *assetUrl;
+@property (nonatomic, strong) NSString *assetUrl;
 @property (nonatomic, strong) UIImage *thumbImage;
 @property (nonatomic, strong) UIImage *image;
 

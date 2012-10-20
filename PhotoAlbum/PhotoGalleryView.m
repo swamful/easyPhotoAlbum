@@ -30,7 +30,7 @@
         [self addGestureRecognizer:panRecognizer];
         
         longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLong:)];
-        longPressRecognizer.minimumPressDuration = 0.2;
+        longPressRecognizer.minimumPressDuration = 0.3;
         [self addGestureRecognizer:longPressRecognizer];
         
         UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
@@ -90,11 +90,7 @@
         [_mainScroll removeFromSuperview];
     }
     
-    UIColor *colorList[10] = {[UIColor redColor],[UIColor blueColor],
-                                [UIColor greenColor],[UIColor yellowColor],
-                                [UIColor cyanColor],[UIColor grayColor],
-                                [UIColor purpleColor],[UIColor orangeColor],
-                                [UIColor brownColor],[UIColor whiteColor]};
+
     rotateAngle = RADIANS_TO_DEGREE(2 * M_PI) / columnCount;
     NSLog(@"list count : %d", [dataList count]);
     NSLog(@"total count : %d", count);
@@ -103,52 +99,71 @@
     
     currentIndex = 0;
     
-    NSInteger tcount = 0;
-    for (int i = 0; i < [dataList count]; i++) {
-        CALayer *boardLayer = [_mainBoardList objectAtIndex:(tcount % columnCount)];
-        UIColor *backColor = colorList[arc4random()%10];
+    totalLayerCount = 0;
+    makeDataCount = 0;
+    
+    [self performSelectorOnMainThread:@selector(makeDayLayer:) withObject:dataList waitUntilDone:NO];
+}
+
+- (void) makeDayLayer:(NSArray *) dataList {
+    if (makeDataCount == [dataList count]) {
+        CGFloat diff =  [[_mainBoardList objectAtIndex:0] frame].origin.y;
+        firstPointY = diff;
+        self.frame = CGRectMake(0, -diff + thumbSize /2, self.frame.size.width, self.frame.size.height + diff - thumbSize /2);
         
-        CATextLayer *textLayer = [CATextLayer layer];
-        textLayer.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
-        textLayer.alignmentMode = kCAAlignmentLeft;
-        textLayer.fontSize = 13.0f;
-        textLayer.backgroundColor = backColor.CGColor;
-        textLayer.alignmentMode = kCAAlignmentCenter;
-        [boardLayer addSublayer:textLayer];
-        tcount ++;
-        NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-        NSMutableArray *eachLayerList = [NSMutableArray array];
-        for (PhotoModel *model in [dataList objectAtIndex:i]) {
-            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-            btn.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
-            btn.tag = tcount;
-            [btn addTarget:self action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
-            UIView *view = [[self subviews] objectAtIndex:(tcount % columnCount)];
-            textLayer.string = [[[[model time] description] componentsSeparatedByString:@" "] objectAtIndex:0];
-            CALayer *layer = [btn layer];
-            layer.backgroundColor = [UIColor whiteColor].CGColor;
-            layer.name = [[[[model time] description] componentsSeparatedByString:@" "] objectAtIndex:0];
-            layer.contents = (id) model.thumbImage.CGImage;
-            
-            layer.borderColor = backColor.CGColor;
-            layer.borderWidth = 1.5f;
-            _lastLayer = layer;
-            [eachLayerList addObject:btn];
-            
-            [view addSubview:btn];
-            tcount ++;
-        }
-        [dic setObject:eachLayerList forKey:textLayer.string];
-        [_allLayerList addObject:dic];
+        [self makeDimmedLayer];
+        CABasicAnimation *beginAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+        beginAnimation.fromValue = [NSNumber numberWithFloat:0.0f];
+        beginAnimation.toValue = [NSNumber numberWithFloat:1.0f];
+        beginAnimation.duration = 2.0f;
+        [self.layer addAnimation:beginAnimation forKey:@"intro"];
+        return;
     }
     
-    CGFloat diff =  [[_mainBoardList objectAtIndex:0] frame].origin.y;
-    firstPointY = diff;
-    self.frame = CGRectMake(0, -diff + thumbSize /2, self.frame.size.width, self.frame.size.height + diff - thumbSize /2);
+    UIColor *colorList[10] = {[UIColor redColor],[UIColor blueColor],
+        [UIColor greenColor],[UIColor yellowColor],
+        [UIColor cyanColor],[UIColor grayColor],
+        [UIColor purpleColor],[UIColor orangeColor],
+        [UIColor brownColor],[UIColor whiteColor]};
     
-    [self makeDimmedLayer];
+    CALayer *boardLayer = [_mainBoardList objectAtIndex:(totalLayerCount % columnCount)];
+    UIColor *backColor = colorList[arc4random()%10];
+    
+    CATextLayer *textLayer = [CATextLayer layer];
+    textLayer.frame = CGRectMake(thumbMargin, (totalLayerCount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (totalLayerCount % columnCount), thumbSize, thumbSize);
+    textLayer.alignmentMode = kCAAlignmentLeft;
+    textLayer.fontSize = 13.0f;
+    textLayer.backgroundColor = backColor.CGColor;
+    textLayer.alignmentMode = kCAAlignmentCenter;
+    [boardLayer addSublayer:textLayer];
+    totalLayerCount ++;
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    NSMutableArray *eachLayerList = [NSMutableArray array];
+    for (PhotoModel *model in [dataList objectAtIndex:makeDataCount ++]) {
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.frame = CGRectMake(thumbMargin, (totalLayerCount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (totalLayerCount % columnCount), thumbSize, thumbSize);
+        btn.tag = totalLayerCount;
+        [btn addTarget:self action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
+        UIView *view = [[self subviews] objectAtIndex:(totalLayerCount % columnCount)];
+        textLayer.string = [[[[model time] description] componentsSeparatedByString:@" "] objectAtIndex:0];
+        CALayer *layer = [btn layer];
+        layer.backgroundColor = [UIColor whiteColor].CGColor;
+        layer.name = [model assetUrl];
+        layer.contents = (id) model.thumbImage.CGImage;
+        
+        layer.borderColor = backColor.CGColor;
+        layer.borderWidth = 1.5f;
 
-    NSLog(@"total count : %d", tcount);
+        _lastLayer = layer;
+        [eachLayerList addObject:btn];
+        
+        [view addSubview:btn];
+        totalLayerCount ++;
+    }
+    [dic setObject:eachLayerList forKey:textLayer.string];
+    [_allLayerList addObject:dic];
+    
+    [self performSelectorOnMainThread:@selector(makeDayLayer:) withObject:dataList waitUntilDone:NO];
 }
 
 - (void) selectThis:(id) control {
@@ -235,7 +250,7 @@
     
     CGFloat btnMargin = 2.0f;
     CGFloat btnWidth = ([[UIScreen mainScreen] applicationFrame].size.width - btnMargin *3) / 2 ;
-    CGFloat btnHeight = ([[UIScreen mainScreen] applicationFrame].size.height - btnMargin * 4) / 3;
+    CGFloat btnHeight = 110;
     
     CGFloat layerMargin = 3.0f;
     CGFloat layerSize = (btnWidth - layerMargin*4) / 4;
@@ -258,11 +273,11 @@
         [btn addSubview:titleLabel];
         
         
-        for (int j = 0 ; j < MIN(9, [[dic objectForKey:key] count]) ; j ++) {
+        for (int j = 0 ; j < MIN(6, [[dic objectForKey:key] count]) ; j ++) {
             CALayer *layer = [[(NSArray*)[dic objectForKey:key] objectAtIndex:j] layer];
-            layer.borderWidth = 0.5f;
+            layer.borderWidth = 1.5f;
             layer.borderColor = [UIColor whiteColor].CGColor;
-            layer.frame = CGRectMake(btnWidth / 2 - layerSize*1.2  + (layerSize + layerMargin) * (j % 3), btnHeight / 2 - layerSize * 1.2 + (layerSize + layerMargin) * (j / 3), layerSize, layerSize);
+            layer.frame = CGRectMake(btnWidth / 2 - layerSize*1.2  + (layerSize + layerMargin) * (j % 3), btnHeight / 2 - layerSize * 0.8 + (layerSize + layerMargin) * (j / 3), layerSize, layerSize);
             [btn.layer addSublayer:layer];
         }
     }
