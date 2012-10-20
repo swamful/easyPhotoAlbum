@@ -16,6 +16,7 @@ typedef enum {
 
 @interface PhotoGalleryView : UIView <UIGestureRecognizerDelegate>{
     UIPanGestureRecognizer* panRecognizer;
+    UILongPressGestureRecognizer *longPressRecognizer;
     NSMutableArray *_mainBoardList;
     NSMutableArray *_allLayerList;
     CALayer *_lastLayer;
@@ -41,6 +42,7 @@ typedef enum {
     
     VIEWTYPE showViewType;
     CGRect initTotalViewSelfFrame;
+    BOOL isSliding;
 }
 
 - (void) initLayerwithImageDataList:(NSArray*) dataList withCount:(NSInteger) count;

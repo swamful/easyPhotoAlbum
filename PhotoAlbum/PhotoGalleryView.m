@@ -29,6 +29,10 @@
         panRecognizer.minimumNumberOfTouches = 1;
         [self addGestureRecognizer:panRecognizer];
         
+        longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLong:)];
+        longPressRecognizer.minimumPressDuration = 0.2;
+        [self addGestureRecognizer:longPressRecognizer];
+        
         UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
         [pinchRecognizer setDelegate:self];
         [self addGestureRecognizer:pinchRecognizer];
@@ -165,6 +169,7 @@
 - (void) showTotalView {    
     showViewType = TOTALVIEW;
     [self addGestureRecognizer:panRecognizer];
+    [self addGestureRecognizer:longPressRecognizer];
     [self initSelfView];
     UIColor *colorList[10] = {[UIColor redColor],[UIColor blueColor],
         [UIColor greenColor],[UIColor yellowColor],
@@ -219,6 +224,7 @@
 - (void) showIndexView {
     showViewType = INDEXVIEW;
     [self removeGestureRecognizer:panRecognizer];
+    [self removeGestureRecognizer:longPressRecognizer];
     [self initSelfView];
     
     self.frame = CGRectMake(0, 0, [[UIScreen mainScreen] bounds].size.width, [[UIScreen mainScreen] bounds].size.height - 20);
@@ -277,6 +283,64 @@
     return NO;
 }
 
+
+
+- (void) rotateMovingAnimation:(NSInteger) moveStep toLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
+    CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    if (moveStep > 0) {
+        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y + ((thumbSize + thumbMargin) / columnCount) * (moveStep % columnCount))];
+    } else {
+        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y - ((thumbSize + thumbMargin) / columnCount) * ((-moveStep) % columnCount))];
+    }
+    moveAnimation.duration = duration;
+    moveAnimation.fillMode = kCAFillModeForwards;
+    moveAnimation.removedOnCompletion = NO;
+    moveAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    
+    CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([(CALayer*)[layer presentationLayer] transform], DEGREES_TO_RADIANS(rotateAngle * moveStep), 0, 1, 0)];
+    rotationAnimation.duration = duration;
+    rotationAnimation.fillMode = kCAFillModeForwards;
+    rotationAnimation.removedOnCompletion = NO;
+    rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.duration = duration;
+    animationGroup.removedOnCompletion = NO;
+    animationGroup.fillMode = kCAFillModeForwards;
+    animationGroup.delegate = self;
+    [animationGroup setValue:[NSString stringWithFormat:@"rotating%d",i] forKey:@"animation"];
+    animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
+        [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
+    } else {
+        [animationGroup setAnimations:[NSArray arrayWithObjects:moveAnimation, rotationAnimation, nil]];
+    }
+    
+    [layer addAnimation:animationGroup forKey:@"animationGroup"];
+}
+
+- (void) handleLong:(UILongPressGestureRecognizer *) recognizer {
+
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if (isSliding) {
+            isSliding = NO;
+        } else {
+            if (isAnimating) {
+                return;
+            }
+            isAnimating = YES;
+            isSliding = YES;
+            NSInteger moveStep = -1;
+            currentIndex = (currentIndex - moveStep + columnCount) % columnCount;
+            for (int i=0; i < [_mainBoardList count]; i++) {
+                [self rotateMovingAnimation:moveStep toLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
+            }
+            
+        }        
+    }
+}
+
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
 
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
@@ -313,38 +377,7 @@
     int i = 0;
     for (CALayer *layer in _mainBoardList) {
         if (isDiresctionWidth) {
-            CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-            if (moveStep > 0) {
-                moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y + ((thumbSize + thumbMargin) / columnCount) * (moveStep % columnCount))];
-            } else {
-                moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y - ((thumbSize + thumbMargin) / columnCount) * ((-moveStep) % columnCount))];
-            }
-            moveAnimation.duration = 0.5;
-            moveAnimation.fillMode = kCAFillModeForwards;
-            moveAnimation.removedOnCompletion = NO;
-            moveAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-            
-            CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-            rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([(CALayer*)[layer presentationLayer] transform], DEGREES_TO_RADIANS(rotateAngle * moveStep), 0, 1, 0)];
-            rotationAnimation.duration = 0.5;
-            rotationAnimation.fillMode = kCAFillModeForwards;
-            rotationAnimation.removedOnCompletion = NO;
-            rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-            
-            CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-            animationGroup.duration = 0.5;
-            animationGroup.removedOnCompletion = NO;
-            animationGroup.fillMode = kCAFillModeForwards;
-            animationGroup.delegate = self;
-            [animationGroup setValue:[NSString stringWithFormat:@"rotating%d",i++] forKey:@"animation"];
-            animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-            if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
-                [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
-            } else {
-                [animationGroup setAnimations:[NSArray arrayWithObjects:moveAnimation, rotationAnimation, nil]];
-            }
-
-            [layer addAnimation:animationGroup forKey:@"animationGroup"];
+            [self rotateMovingAnimation:moveStep toLayer:layer index:i++ duration:0.5];
         } else {
             if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
                 isAnimating = NO;
@@ -462,8 +495,16 @@
             UIView *view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount) % columnCount)];
             view.userInteractionEnabled = YES;
         }
-        
-        isAnimating = NO;
+        isAnimating = NO;        
+        if (isSliding) {
+            NSInteger moveStep = -1;
+            currentIndex = (currentIndex - moveStep + columnCount) % columnCount;
+            isAnimating = YES;
+            for (int i=0; i < [_mainBoardList count]; i++) {
+                [self rotateMovingAnimation:moveStep toLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
+            }
+        }
+
     }
 }
 
