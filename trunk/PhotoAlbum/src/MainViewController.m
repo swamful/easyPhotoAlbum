@@ -54,7 +54,7 @@ void(^loadPhotosBlock)(ALAsset *, NSUInteger, BOOL *) = ^(ALAsset * photo, NSUIn
         [model setTime:[photo valueForProperty:ALAssetPropertyDate]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
 //        [model setImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]]];
-        [model setAssetUrl:[[photo defaultRepresentation] url]];
+        [model setAssetUrl:[[[photo defaultRepresentation] url] description]];
         [_tempAddList addObject:model];
     }
 };
@@ -131,5 +131,22 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+/*
+#pragma mark - System Rotation Methods
+//for any version before 6.0
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    //only allow landscape
+    return (interfaceOrientation != UIInterfaceOrientationMaskPortraitUpsideDown);
+}
 
+//for 6.0+
+- (BOOL)shouldAutorotate{
+    return [UIDevice currentDevice].orientation != UIInterfaceOrientationPortraitUpsideDown;
+}
+
+- (NSUInteger)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+*/
 @end

@@ -452,13 +452,13 @@
 		6C97328F1629992300CD5D18 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: NHN Corporation";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Seungpill Baik (Q5LGPU6NV4)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PhotoAlbum/PhotoAlbum-Prefix.pch";
 				INFOPLIST_FILE = "PhotoAlbum/PhotoAlbum-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "694592B8-224B-4F33-B886-A9B5DCCBCBC1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FF19F24D-A60F-4DE4-A75C-43E5CA984547";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

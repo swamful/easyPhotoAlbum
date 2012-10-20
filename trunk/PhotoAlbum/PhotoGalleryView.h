@@ -43,6 +43,9 @@ typedef enum {
     VIEWTYPE showViewType;
     CGRect initTotalViewSelfFrame;
     BOOL isSliding;
+    
+    NSInteger totalLayerCount;
+    NSInteger makeDataCount;
 }
 
 - (void) initLayerwithImageDataList:(NSArray*) dataList withCount:(NSInteger) count;
