@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface MainViewController: UIViewController {
-    
-
+#import "ALAssetsManager.h"
+#import "PhotoGalleryView.h"
+@interface MainViewController: UIViewController <ALAssetsMangerDelegate>{
+    ALAssetsManager *alassetManager;
+    PhotoGalleryView *galleryView;
 }
 
 @end
