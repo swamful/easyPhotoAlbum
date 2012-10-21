@@ -95,7 +95,6 @@ void(^loadGroupsSucceedBlock)(ALAssetsGroup *, BOOL *) = ^(ALAssetsGroup * group
         NSMutableDictionary *dic = [NSMutableDictionary dictionary];
         [dic setObject:sortedValues forKey:@"data"];
         [dic setObject:[NSNumber numberWithInteger:photoCount] forKey:@"totalCount"];
-        NSLog(@"delagateForBlock : %@", delegateForBlock);
         [delegateForBlock didFinishLoadFullLibrary:dic];
     }
 };
