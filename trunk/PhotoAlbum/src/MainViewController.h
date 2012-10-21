@@ -9,9 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "ALAssetsManager.h"
 #import "PhotoGalleryView.h"
-@interface MainViewController: UIViewController <ALAssetsMangerDelegate>{
+#import "IndexView.h"
+#import "UIConstans.h"
+@interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
+    IndexView *indexView;
+    NSMutableArray *_allLayerList;
+    VIEWTYPE showingViewType;
+    
+    NSInteger totalCount;
+    
 }
 
 @end

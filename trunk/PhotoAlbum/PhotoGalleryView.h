@@ -7,28 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "UIConstans.h"
 
-typedef enum {
-    TOTALVIEW = 0,
-    INDEXVIEW
-} VIEWTYPE;
 
 
 @interface PhotoGalleryView : UIView <UIGestureRecognizerDelegate>{
-    UIPanGestureRecognizer* panRecognizer;
-    UILongPressGestureRecognizer *longPressRecognizer;
     NSMutableArray *_mainBoardList;
-    NSMutableArray *_allLayerList;
+
     CALayer *_lastLayer;
     
     BOOL isAnimating;
-    CGFloat lastWidth;
     
     CGPoint forePoint;
-    UIScrollView *_mainScroll;
-    NSInteger groupCount;
-    
-    
+
     CGFloat rotateAngle;
     BOOL isDiresctionWidth;
     
@@ -40,15 +31,9 @@ typedef enum {
     CGFloat firstPointY;
     CGFloat heightMoveThreshold;
     
-    VIEWTYPE showViewType;
-    CGRect initTotalViewSelfFrame;
     BOOL isSliding;
-    
-    NSInteger totalLayerCount;
-    NSInteger makeDataCount;
 }
 
-- (void) initLayerwithImageDataList:(NSArray*) dataList withCount:(NSInteger) count;
-
+- (id)initWithFrame:(CGRect)frame withDataList:(NSArray *) dataList withTotalCount:(NSInteger) totalCount;
 
 @end
