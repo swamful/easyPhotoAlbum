@@ -32,6 +32,7 @@
 		6C9732AE16299BC900CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
 		6C9732B016299EB400CD5D18 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C9732AF16299EB400CD5D18 /* ImageIO.framework */; };
 		6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
+		6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */; };
 		A8DEC726162BA8770096B933 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DEC725162BA8770096B933 /* AssetsLibrary.framework */; };
 		A8DEC730162BD1220096B933 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DEC72F162BD1220096B933 /* QuartzCore.framework */; };
 		A8DEC737162BD1B60096B933 /* PhotoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DEC736162BD1B60096B933 /* PhotoModel.m */; };
@@ -79,6 +80,8 @@
 		6C9732AC16299BC900CD5D18 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = src/MainViewController.h; sourceTree = "<group>"; };
 		6C9732AD16299BC900CD5D18 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = src/MainViewController.m; sourceTree = "<group>"; };
 		6C9732AF16299EB400CD5D18 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
+		6C9CAD851633FBD5004C4974 /* ALAssetsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALAssetsManager.h; sourceTree = "<group>"; };
+		6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALAssetsManager.m; sourceTree = "<group>"; };
 		A8DEC725162BA8770096B933 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		A8DEC72F162BD1220096B933 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A8DEC735162BD1B60096B933 /* PhotoModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoModel.h; sourceTree = "<group>"; };
@@ -160,6 +163,8 @@
 				6C97326D1629992300CD5D18 /* AppDelegate.h */,
 				6C97326E1629992300CD5D18 /* AppDelegate.m */,
 				6C9732651629992300CD5D18 /* Supporting Files */,
+				6C9CAD851633FBD5004C4974 /* ALAssetsManager.h */,
+				6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */,
 			);
 			path = PhotoAlbum;
 			sourceTree = "<group>";
@@ -343,6 +348,7 @@
 				6C97326F1629992300CD5D18 /* AppDelegate.m in Sources */,
 				A8DEC737162BD1B60096B933 /* PhotoModel.m in Sources */,
 				A8DEC744162BEF080096B933 /* PhotoGalleryView.m in Sources */,
+				6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
