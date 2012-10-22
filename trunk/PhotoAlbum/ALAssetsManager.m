@@ -45,6 +45,11 @@ id<ALAssetsMangerDelegate> delegateForBlock;
                                failureBlock:loadGroupsFailedBlock];
 }
 
+- (void) getPhotoDataWithAssetURL:(NSURL*) url {
+    delegateForBlock = self.delegate;
+    [assetsLibrary assetForURL:url resultBlock:resultblock failureBlock:loadGroupsFailedBlock];
+}
+
 void(^loadPhotosBlock)(ALAsset *, NSUInteger, BOOL *) = ^(ALAsset * photo, NSUInteger index, BOOL * stop){
     if( photo ){
         NSDate *lastDate = [[_tempAddList lastObject] time];
@@ -106,9 +111,16 @@ void(^loadGroupsFailedBlock)(NSError *) = ^(NSError * error){
 ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
 {
     if( photo ){
-        NSLog(@"%@", [photo valueForProperty:ALAssetPropertyURLs]);
+//        NSLog(@"%@", [photo valueForProperty:ALAssetPropertyURLs]);
         NSDictionary *myMetadata = [[photo defaultRepresentation] metadata];
-        NSLog(@"meta : %@", myMetadata);
+//        NSLog(@"meta : %@", myMetadata);
+        
+        PhotoModel *model = [[PhotoModel alloc] init];
+        [model setTime:[photo valueForProperty:ALAssetPropertyDate]];
+        [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
+        [model setImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]]];
+        [model setAssetUrl:[[[photo defaultRepresentation] url] description]];
+        [delegateForBlock didFinishLoadPhotoModel:model];
     }
 };
 

@@ -24,7 +24,7 @@
 {
     [super viewDidLoad];
     _allLayerList = [[NSMutableArray alloc] init];
-    
+    _btnIndexList = [[NSMutableArray alloc] init];
     UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
     [pinchRecognizer setDelegate:self];
     [self.view addGestureRecognizer:pinchRecognizer];
@@ -35,7 +35,6 @@
     alassetManager.delegate = self;
 
     [alassetManager getPhotoLibrary];
-//    [assetsLibrary assetForURL:[NSURL URLWithString:@"assets-library://asset/asset.JPG?id=BE08A7BC-DBC6-4596-8775-2C3530D822F2&ext=JPG"] resultBlock:resultblock failureBlock:loadGroupsFailedBlock];
 }
 
 
@@ -109,6 +108,12 @@
 }
 
 - (void) changeShowingView {
+    for (NSDictionary *dataDic in _allLayerList) {
+        for (UIButton *btn in [[dataDic allValues] objectAtIndex:0]) {
+            [btn removeFromSuperview];
+            [btn removeTarget:[btn superview] action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
+        }
+    }
     for (UIView *view in [self.view subviews]) {
         [view removeFromSuperview];
     }
@@ -121,16 +126,34 @@
             indexView = [[IndexView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withAllLayerList:_allLayerList];
             [self.view addSubview:indexView];
             break;
+        case DETAILEDVIEW:
+            detailedView = [[DetailedView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withBtnIndexList:_btnIndexList currentIndex:selectedIndex];
+            [self.view addSubview:detailedView];
+            break;
 
         default:
             break;
     }
 }
 
-- (void) getFullPhotosLibrary {
-    @autoreleasepool {
-        [alassetManager getPhotoLibrary];
-    }
+- (void) selectThis:(id) control {
+    showingViewType = DETAILEDVIEW;
+    selectedIndex = [control tag];
+    [self changeShowingView];
+//    [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[control layer] name]]];
+//    if ((UIButton*)[[control superview] viewWithTag:([control tag] -1)] != nil) {
+//        [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[(UIButton*)[[control superview] viewWithTag:([control tag] -1) ] layer] name]]];        
+//    } else {
+//        
+//    }
+//    if ((UIButton*)[[control superview] viewWithTag:([control tag] +1)] != nil) {
+//        [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[(UIButton*)[[control superview] viewWithTag:([control tag] +1) ] layer] name]]];
+//    } else {
+//        
+//    }
+//    
+    
+    NSLog(@"btn : %d layer name :%@ frame:%@ super :%d", [control tag], [[control layer] name], NSStringFromCGRect([control frame]), [[control superview] tag]);
 }
 
 - (void)didReceiveMemoryWarning
@@ -144,12 +167,13 @@
     [self changeShowingView];
 }
 - (void) didFinishLoadPhotoModel:(PhotoModel *)model {
-    
+    NSLog(@"model : %@", [model assetUrl]);
 }
 
 
 - (void) makeAllLayerList:(NSDictionary*) dataList {
     [_allLayerList removeAllObjects];
+    [_btnIndexList removeAllObjects];
     NSArray *data = [dataList objectForKey:@"data"];
     NSInteger tCount = 0;
     NSString *title = @"";
@@ -165,6 +189,7 @@
             layer.contents = (id) model.thumbImage.CGImage;
             
             [eachLayerList addObject:btn];
+            [_btnIndexList addObject:btn];
         }
         [dicData setObject:eachLayerList forKey:title];
         [_allLayerList addObject:dicData];

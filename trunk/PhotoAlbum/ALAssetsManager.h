@@ -17,10 +17,12 @@
 + (id) getSharedInstance;
 
 - (void) getPhotoLibrary;
+- (void) getPhotoDataWithAssetURL:(NSURL*) url;
 
 @end
 
 @protocol ALAssetsMangerDelegate <NSObject>
+@optional
 - (void) didFinishLoadFullLibrary:(NSDictionary*) dataList;
 - (void) didFinishLoadPhotoModel:(PhotoModel*) model;
 @end

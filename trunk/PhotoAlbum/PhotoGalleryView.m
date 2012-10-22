@@ -66,11 +66,6 @@
 }
 
 
-
-- (void) selectThis:(id) control {
-    NSLog(@"btn : %d layer name :%@ frame:%@ super :%d", [control tag], [[control layer] name], NSStringFromCGRect([control frame]), [[control superview] tag]);
-}
-
 - (void) initSelfView {
     for (UIView *view in [self subviews]) {
         [view removeFromSuperview];
@@ -123,7 +118,7 @@
         for (int j = 0 ; j < [[dic objectForKey:key] count] ; j ++) {
             UIView *view = [[self subviews] objectAtIndex:(tcount % columnCount)];
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
-            [btn addTarget:self action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
+            [btn addTarget:nil action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
             btn.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
 
             CALayer *layer = [btn layer];

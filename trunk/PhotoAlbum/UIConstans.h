@@ -9,5 +9,6 @@
 
 typedef enum {
     TOTALVIEW = 0,
-    INDEXVIEW
+    INDEXVIEW,
+    DETAILEDVIEW,
 } VIEWTYPE;
