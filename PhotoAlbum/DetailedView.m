@@ -147,6 +147,8 @@
 
 - (void) moveRight {
     currentIndex--;
+    currentLayer = [self makeLayer];
+    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
     [[_layerList objectAtIndex:centerIndex] setPosition:rightPoint];
     [[_layerList objectAtIndex:leftIndex] setPosition:centerPoint];
     CALayer *rightLayer = [_layerList objectAtIndex:rightIndex];
@@ -154,16 +156,15 @@
     [rightLayer removeFromSuperlayer];
     [_layerList removeObject:rightLayer];
     
-    [_layerList insertObject:[self makeLayer] atIndex:0];
+    [_layerList insertObject:currentLayer atIndex:0];
     [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
     [mainLayer addSublayer:[_layerList objectAtIndex:leftIndex]];
-    currentLayer = [_layerList objectAtIndex:leftIndex];
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
 }
 
 - (void) moveLeft {
     currentIndex++;
-
+    currentLayer = [self makeLayer];
+    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
     [[_layerList objectAtIndex:centerIndex] setPosition:leftPoint];
     [[_layerList objectAtIndex:rightIndex] setPosition:centerPoint];
     CALayer *leftLayer = [_layerList objectAtIndex:leftIndex];
@@ -171,11 +172,9 @@
     [leftLayer removeFromSuperlayer];
     [_layerList removeObject:leftLayer];
     
-    [_layerList addObject:[self makeLayer]];
+    [_layerList addObject:currentLayer];
     [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
     [mainLayer addSublayer:[_layerList objectAtIndex:rightIndex]];
-    currentLayer = [_layerList objectAtIndex:rightIndex];
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
@@ -183,6 +182,7 @@
     [CATransaction setValue:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear] forKey:kCATransactionAnimationTimingFunction];
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
     CGPoint delta = [pan translationInView:pan.view];
+    CGPoint velocity = [pan velocityInView:pan.view];
     if (pan.state == UIGestureRecognizerStateBegan) {
         forePoint = CGPointZero;
     } else if (pan.state == UIGestureRecognizerStateChanged) {
@@ -193,10 +193,12 @@
     } else {
         if (fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2) {
             if (delta.x > 0 && currentIndex !=0) {
-                [CATransaction setValue:[NSNumber numberWithFloat:0.01] forKey:kCATransactionAnimationDuration];
+                CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
                 [self moveRight];
             } else if(currentIndex != [_btnIndexList count] -1){
-                [CATransaction setValue:[NSNumber numberWithFloat:0.01] forKey:kCATransactionAnimationDuration];
+                CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x * 0.5);
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
                 [self moveLeft];
             }
         }

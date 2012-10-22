@@ -62,7 +62,6 @@
     dimmedView.alpha = 0.7;
 
     [self addSubview:dimmedView];
-    [self bringSubviewToFront:dimmedView];
 }
 
 
@@ -118,14 +117,12 @@
         for (int j = 0 ; j < [[dic objectForKey:key] count] ; j ++) {
             UIView *view = [[self subviews] objectAtIndex:(tcount % columnCount)];
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
-            [btn addTarget:nil action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
             btn.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
 
             CALayer *layer = [btn layer];
             layer.borderColor = backColor.CGColor;
             layer.borderWidth = 1.5f;
             layer.cornerRadius = 0.0f;
-            layer.name = key;
             [view addSubview:btn];
             
             _lastLayer = layer;
@@ -135,7 +132,7 @@
     CGFloat diff =  [[_mainBoardList objectAtIndex:0] frame].origin.y;
     firstPointY = diff;
     self.frame = CGRectMake(0, -diff + thumbSize /2, self.frame.size.width, self.frame.size.height + diff - thumbSize /2);
-    
+    NSLog(@"self.frame : %@", NSStringFromCGRect(self.frame));
     [self makeDimmedLayer];
 }
 

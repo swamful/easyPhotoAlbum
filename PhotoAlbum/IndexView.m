@@ -56,7 +56,6 @@
 
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
             btn.frame = CGRectMake(lastWidth + thumbMargin + (thumbSize + thumbMargin) * (j%2), 50 + thumbMargin + (thumbSize + thumbMargin) * (j/2), thumbSize, thumbSize);
-            [btn addTarget:nil action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
             btn.layer.borderColor = [UIColor grayColor].CGColor;
             btn.layer.borderWidth = 0.5f;
 
