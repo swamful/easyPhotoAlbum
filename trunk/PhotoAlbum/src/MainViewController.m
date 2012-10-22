@@ -111,7 +111,7 @@
     for (NSDictionary *dataDic in _allLayerList) {
         for (UIButton *btn in [[dataDic allValues] objectAtIndex:0]) {
             [btn removeFromSuperview];
-            [btn removeTarget:[btn superview] action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
+//            [btn removeTarget:[btn superview] action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
         }
     }
     for (UIView *view in [self.view subviews]) {
@@ -137,37 +137,16 @@
 }
 
 - (void) selectThis:(id) control {
+    NSLog(@"here selectThis");
     showingViewType = DETAILEDVIEW;
     selectedIndex = [control tag];
     [self changeShowingView];
-//    [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[control layer] name]]];
-//    if ((UIButton*)[[control superview] viewWithTag:([control tag] -1)] != nil) {
-//        [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[(UIButton*)[[control superview] viewWithTag:([control tag] -1) ] layer] name]]];        
-//    } else {
-//        
-//    }
-//    if ((UIButton*)[[control superview] viewWithTag:([control tag] +1)] != nil) {
-//        [alassetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[[(UIButton*)[[control superview] viewWithTag:([control tag] +1) ] layer] name]]];
-//    } else {
-//        
-//    }
-//    
-    
     NSLog(@"btn : %d layer name :%@ frame:%@ super :%d", [control tag], [[control layer] name], NSStringFromCGRect([control frame]), [[control superview] tag]);
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void) didFinishLoadFullLibrary:(NSDictionary *)dataList {
     [self makeAllLayerList:dataList];
     [self changeShowingView];
-}
-- (void) didFinishLoadPhotoModel:(PhotoModel *)model {
-    NSLog(@"model : %@", [model assetUrl]);
 }
 
 
@@ -182,6 +161,7 @@
         NSMutableArray *eachLayerList = [NSMutableArray array];
         for (PhotoModel *model in dic) {
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            [btn addTarget:self action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
             btn.tag = tCount++;
             title = [[[[model time] description] componentsSeparatedByString:@" "] objectAtIndex:0];
             CALayer *layer = [btn layer];
