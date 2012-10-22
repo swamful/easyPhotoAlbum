@@ -34,6 +34,8 @@
 		6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
 		6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */; };
 		6C9CADAD16340B66004C4974 /* IndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADAC16340B66004C4974 /* IndexView.m */; };
+		A884CA891635214100AFB751 /* DetailedView.m in Sources */ = {isa = PBXBuildFile; fileRef = A884CA881635214100AFB751 /* DetailedView.m */; };
+		A884CA8A163529AC00AFB751 /* DetailedView.m in Sources */ = {isa = PBXBuildFile; fileRef = A884CA881635214100AFB751 /* DetailedView.m */; };
 		A8DEC726162BA8770096B933 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DEC725162BA8770096B933 /* AssetsLibrary.framework */; };
 		A8DEC730162BD1220096B933 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DEC72F162BD1220096B933 /* QuartzCore.framework */; };
 		A8DEC737162BD1B60096B933 /* PhotoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DEC736162BD1B60096B933 /* PhotoModel.m */; };
@@ -86,6 +88,8 @@
 		6C9CADAB16340B66004C4974 /* IndexView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexView.h; sourceTree = "<group>"; };
 		6C9CADAC16340B66004C4974 /* IndexView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexView.m; sourceTree = "<group>"; };
 		6C9CADAE163438BD004C4974 /* UIConstans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIConstans.h; sourceTree = "<group>"; };
+		A884CA871635214100AFB751 /* DetailedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailedView.h; sourceTree = "<group>"; };
+		A884CA881635214100AFB751 /* DetailedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailedView.m; sourceTree = "<group>"; };
 		A8DEC725162BA8770096B933 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		A8DEC72F162BD1220096B933 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A8DEC735162BD1B60096B933 /* PhotoModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoModel.h; sourceTree = "<group>"; };
@@ -172,6 +176,8 @@
 				6C9CADAB16340B66004C4974 /* IndexView.h */,
 				6C9CADAC16340B66004C4974 /* IndexView.m */,
 				6C9CADAE163438BD004C4974 /* UIConstans.h */,
+				A884CA871635214100AFB751 /* DetailedView.h */,
+				A884CA881635214100AFB751 /* DetailedView.m */,
 			);
 			path = PhotoAlbum;
 			sourceTree = "<group>";
@@ -350,6 +356,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A884CA8A163529AC00AFB751 /* DetailedView.m in Sources */,
 				6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */,
 				6C97326B1629992300CD5D18 /* main.m in Sources */,
 				6C97326F1629992300CD5D18 /* AppDelegate.m in Sources */,
@@ -366,6 +373,7 @@
 			files = (
 				6C97328A1629992300CD5D18 /* PhotoAlbumTests.m in Sources */,
 				6C9732AE16299BC900CD5D18 /* MainViewController.m in Sources */,
+				A884CA891635214100AFB751 /* DetailedView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,13 +474,13 @@
 		6C97328F1629992300CD5D18 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Seungpill Baik (Q5LGPU6NV4)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: NHN Corporation";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PhotoAlbum/PhotoAlbum-Prefix.pch";
 				INFOPLIST_FILE = "PhotoAlbum/PhotoAlbum-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FF19F24D-A60F-4DE4-A75C-43E5CA984547";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "694592B8-224B-4F33-B886-A9B5DCCBCBC1";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

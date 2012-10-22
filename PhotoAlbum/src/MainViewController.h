@@ -11,14 +11,19 @@
 #import "PhotoGalleryView.h"
 #import "IndexView.h"
 #import "UIConstans.h"
+#import "DetailedView.h"
 @interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
+    DetailedView *detailedView;
     IndexView *indexView;
     NSMutableArray *_allLayerList;
+    NSMutableArray *_btnIndexList;
     VIEWTYPE showingViewType;
     
     NSInteger totalCount;
+    
+    NSInteger selectedIndex;
     
 }
 

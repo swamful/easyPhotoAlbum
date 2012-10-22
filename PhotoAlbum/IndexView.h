@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface IndexView : UIView
+@interface IndexView : UIView {
+    NSMutableArray *_mainBoardList;
+    CGFloat m34;
+}
 
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
 @end
