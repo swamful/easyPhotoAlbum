@@ -14,6 +14,7 @@
     NSInteger makeIndex;
     CALayer *mainLayer;
     UILabel *_titleLabel;
+    UILabel *_addressLabel;
     
     NSMutableArray *_layerList;
     ALAssetsManager *alAssetManager;

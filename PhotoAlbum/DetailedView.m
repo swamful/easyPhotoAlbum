@@ -130,6 +130,13 @@
         _titleLabel.font = [UIFont fontWithName:@"GillSans-Italic" size:30];
         [self addSubview:_titleLabel];
         
+        _addressLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 40, self.frame.size.width, 40)];
+        _addressLabel.backgroundColor = [UIColor grayColor];
+        _addressLabel.alpha = 0.5;
+        _addressLabel.textColor = [UIColor whiteColor];
+        _addressLabel.textAlignment = UITextAlignmentCenter;
+        _addressLabel.font = [UIFont fontWithName:@"GillSans-Italic" size:18];
+        [self addSubview:_addressLabel];
         
         UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         panRecognizer.minimumNumberOfTouches = 1;
@@ -186,6 +193,8 @@
     NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
     NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
     currentLayer.name = time;
+    NSLog(@"address : %@", [model address]);
+    [_addressLabel setText:[model address]];
     isMoving = NO;
 }
 
@@ -199,6 +208,9 @@
         NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
         NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
         currentLayer.name = time;
+        NSLog(@"address : %@", [model address]);
+        [_addressLabel setText:[model address]];
+
         [self makeLayerList];
     } else {
         [self performSelectorOnMainThread:@selector(drawImage:) withObject:model waitUntilDone:NO];
