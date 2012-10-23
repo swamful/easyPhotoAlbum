@@ -114,9 +114,8 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
 {
     if( photo ){
 //        NSLog(@"%@", [photo valueForProperty:ALAssetPropertyURLs]);
-        NSDictionary *myMetadata = [[photo defaultRepresentation] metadata];
+//        NSDictionary *myMetadata = [[photo defaultRepresentation] metadata];
 //        NSLog(@"metadata : %@", myMetadata);
-        NSDictionary *tiffData = [myMetadata objectForKey:(NSString*)kCGImagePropertyTIFFDictionary];
 
 //        NSLog(@"location :%@", [photo valueForProperty:ALAssetPropertyLocation]);
         CLLocation *location = [photo valueForProperty:ALAssetPropertyLocation];
@@ -128,12 +127,14 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
         }
         if (location) {
             CLLocationCoordinate2D gps = [location coordinate];
-            NSString *address = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude,gps.longitude]]
+            NSString *json = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude,gps.longitude]]
                                                          encoding:NSUTF8StringEncoding error:nil];
-            NSDictionary *dic = [address JSONValue];
+            NSDictionary *dic = [json JSONValue];
 //            NSLog(@"dic : %@", dic);
 //            NSLog(@"address : %@", [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]);
-            [model setAddress:[[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]];
+            NSString *address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
+            address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
+            [model setAddress:address];
         } 
         NSLog(@"timeStamp : %@", timeStamp);
         [model setTime:timeStamp];
