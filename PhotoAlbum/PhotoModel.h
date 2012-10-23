@@ -10,9 +10,7 @@
 
 @interface PhotoModel : NSObject {
     NSString *group;
-    NSString *geoAltitude;
-    NSString *geoLatitude;
-    NSString *geoLongitude;
+    NSString *address;
     NSDate *time;
     NSString *device;
     NSString *assetUrl;
@@ -20,9 +18,7 @@
     UIImage *image;
 }
 @property (nonatomic, strong) NSString *group;
-@property (nonatomic, strong) NSString *geoAltitude;
-@property (nonatomic, strong) NSString *geoLatitude;
-@property (nonatomic, strong) NSString *geoLongitude;
+@property (nonatomic, strong) NSString *address;
 @property (nonatomic, strong) NSDate *time;
 @property (nonatomic, strong) NSString *device;
 @property (nonatomic, strong) NSString *assetUrl;

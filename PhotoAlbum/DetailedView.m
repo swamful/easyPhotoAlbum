@@ -7,10 +7,11 @@
 //
 
 #import "DetailedView.h"
-#define centerIndex 1
-#define leftIndex 0
-#define rightIndex 2
-
+#define twoLeftIndex 0
+#define centerIndex 2
+#define leftIndex 1
+#define rightIndex 3
+#define twoRightIndex 4
 @interface NSMutableArray(ShiftArray)
 - (void) shiftArrayWithCount:(NSInteger) shiftCount;
 @end
@@ -54,6 +55,7 @@
         currentIndex = index;
         _btnIndexList = btnIndexList;
         _layerList = [[NSMutableArray alloc] init];
+        requestImageQueue = [[NSMutableArray alloc] init];
 
         mainLayer = [CALayer layer];
         mainLayer.frame = self.frame;
@@ -62,7 +64,11 @@
         [_layerList addObject:[self makeLayer]];
         [_layerList addObject:[self makeLayer]];
         [_layerList addObject:[self makeLayer]];
-        
+        [_layerList addObject:[self makeLayer]];
+        [_layerList addObject:[self makeLayer]];
+
+        [mainLayer addSublayer:[_layerList objectAtIndex:twoLeftIndex]];
+        [mainLayer addSublayer:[_layerList objectAtIndex:twoRightIndex]];
         [mainLayer addSublayer:[_layerList objectAtIndex:leftIndex]];
         [mainLayer addSublayer:[_layerList objectAtIndex:centerIndex]];
         [mainLayer addSublayer:[_layerList objectAtIndex:rightIndex]];
@@ -70,15 +76,60 @@
         leftPoint = CGPointMake(self.center.x - (self.frame.size.width * 0.85), self.center.y);
         centerPoint = CGPointMake(self.center.x, self.center.y);
         rightPoint = CGPointMake(self.center.x + (self.frame.size.width * 0.85), self.center.y);
+        twoLeftPoint = CGPointMake(self.center.x - (self.frame.size.width * 0.85) * 2, self.center.y);
+        twoRightPoint = CGPointMake(self.center.x + (self.frame.size.width * 0.85) * 2, self.center.y);
         
+        NSNumber *leftNumber = [NSNumber numberWithInt:leftIndex];
+        NSNumber *twoLeftNumber = [NSNumber numberWithInt:twoLeftIndex];
+        NSNumber *centerNumber = [NSNumber numberWithInt:centerIndex];
+        NSNumber *rightNumber = [NSNumber numberWithInt:rightIndex];
+        NSNumber *twoRightNumber = [NSNumber numberWithInt:twoRightIndex];
+        
+        [requestImageQueue addObject:centerNumber];
+        [requestImageQueue addObject:leftNumber];
+        [requestImageQueue addObject:rightNumber];
+        [requestImageQueue addObject:twoLeftNumber];
+        [requestImageQueue addObject:twoRightNumber];
+        
+        [[_layerList objectAtIndex:twoLeftIndex] setPosition:leftPoint];
+        [[_layerList objectAtIndex:twoRightIndex] setPosition:leftPoint];
         [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
         [[_layerList objectAtIndex:centerIndex] setPosition:centerPoint];
         [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
+        
+        if (currentIndex == 0) {
+            [[_layerList objectAtIndex:twoLeftIndex] setPosition:CGPointMake(twoLeftPoint.x, twoLeftPoint.y + 400)];
+            [[_layerList objectAtIndex:leftIndex] setPosition:CGPointMake(twoLeftPoint.x, twoLeftPoint.y + 400)];
+            [requestImageQueue removeObject:leftNumber];
+            [requestImageQueue removeObject:twoLeftNumber];
+        } else if (currentIndex == 1) {
+            [[_layerList objectAtIndex:twoLeftIndex] setPosition:CGPointMake(twoLeftPoint.x, twoLeftPoint.y + 400)];
+            [requestImageQueue removeObject:twoLeftNumber];
+        }
+        
+        if (currentIndex == [_btnIndexList count] - 2) {
+            [[_layerList objectAtIndex:twoRightIndex] setPosition:CGPointMake(twoRightPoint.x, twoRightPoint.y + 400)];
+            [requestImageQueue removeObject:twoRightNumber];
+        } else if (currentIndex == [_btnIndexList count] - 1) {
+            [[_layerList objectAtIndex:twoRightIndex] setPosition:CGPointMake(twoRightPoint.x, twoRightPoint.y + 400)];
+            [[_layerList objectAtIndex:rightIndex] setPosition:CGPointMake(twoRightPoint.x, twoRightPoint.y + 400)];
+            [requestImageQueue removeObject:rightNumber];
+            [requestImageQueue removeObject:twoRightNumber];
+        }
         
         alAssetManager = [ALAssetsManager getSharedInstance];
         alAssetManager.delegate = self;
         isInit = YES;
         [self makeLayerList];
+        
+        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 60)];
+        _titleLabel.backgroundColor = [UIColor grayColor];
+        _titleLabel.alpha = 0.5;
+        _titleLabel.textColor = [UIColor whiteColor];
+        _titleLabel.textAlignment = UITextAlignmentCenter;
+        _titleLabel.font = [UIFont fontWithName:@"GillSans-Italic" size:30];
+        [self addSubview:_titleLabel];
+        
         
         UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         panRecognizer.minimumNumberOfTouches = 1;
@@ -90,21 +141,16 @@
 }
 
 - (void) makeLayerList {
-    if (currentLayer == [_layerList objectAtIndex:centerIndex]) {
-        currentLayer = [_layerList objectAtIndex:leftIndex];
-        
-        [self requestPhotoWithInt:currentIndex-1];
-    } else if (currentLayer == [_layerList objectAtIndex:leftIndex]) {
-        currentLayer = [_layerList objectAtIndex:rightIndex];
-        [self requestPhotoWithInt:currentIndex+1];
-    } else if (currentLayer == [_layerList objectAtIndex:rightIndex]){
-        isInit = NO;
+    if ([requestImageQueue count] == 0) {
+        [self makeTextToCurrentView];
+        isInit = 0;
         currentLayer = nil;
         return;
-    } else {
-        currentLayer = [_layerList objectAtIndex:centerIndex];
-        [self requestPhotoWithInt:currentIndex];
     }
+    NSInteger index = [[requestImageQueue objectAtIndex:0] intValue];
+    currentLayer = [_layerList objectAtIndex:index];
+    [self requestPhotoWithInt:currentIndex + (index -centerIndex)];
+    [requestImageQueue removeObjectAtIndex:0];
 }
 
 - (CALayer*) makeLayer {
@@ -120,6 +166,7 @@
 }
 
 - (void) requestPhoto:(NSNumber*) index {
+//    NSLog(@"request index : %d", [index integerValue]);
     @autoreleasepool {
         [alAssetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[self getAlassetUrlStringWithBtnIndex:[index intValue]]]];
     }
@@ -132,49 +179,105 @@
 
 - (void) drawImage:(PhotoModel *) model {
     currentLayer.contents = (id) [model image].CGImage;
-    currentLayer.name = [model assetUrl];
+    NSArray *timeList = [[[model time] description] componentsSeparatedByString:@" "];
+    NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
+    NSString *date = [dateList componentsJoinedByString:@"."];
+    
+    NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
+    NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
+    currentLayer.name = time;
+    isMoving = NO;
 }
 
 - (void) didFinishLoadPhotoModel:(PhotoModel *)model {
     if (isInit) {
         currentLayer.contents = (id) [model image].CGImage;
-        currentLayer.name = [model assetUrl];
+        NSArray *timeList = [[[model time] description] componentsSeparatedByString:@" "];
+        NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
+        NSString *date = [dateList componentsJoinedByString:@"."];
+        
+        NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
+        NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
+        currentLayer.name = time;
         [self makeLayerList];
     } else {
         [self performSelectorOnMainThread:@selector(drawImage:) withObject:model waitUntilDone:NO];
     }
 }
 
-- (void) moveRight {
-    currentIndex--;
-    currentLayer = [self makeLayer];
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
-    [[_layerList objectAtIndex:centerIndex] setPosition:rightPoint];
-    [[_layerList objectAtIndex:leftIndex] setPosition:centerPoint];
-    CALayer *rightLayer = [_layerList objectAtIndex:rightIndex];
-    rightLayer.position = CGPointMake(self.frame.size.width  *3, rightLayer.position.y);
-    [rightLayer removeFromSuperlayer];
-    [_layerList removeObject:rightLayer];
-    
-    [_layerList insertObject:currentLayer atIndex:0];
-    [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
-    [mainLayer addSublayer:[_layerList objectAtIndex:leftIndex]];
+- (void) makeTextToCurrentView {
+//    NSLog(@"currentIndex : %d name : %@",currentIndex, [[_layerList objectAtIndex:centerIndex] name]);
+    [_titleLabel setText:[[_layerList objectAtIndex:centerIndex] name]];
 }
 
-- (void) moveLeft {
-    currentIndex++;
+- (void) moveRight {
+    if (currentIndex == 0 || isMoving) {
+        return;
+    }
+    isMoving = YES;
+    [[_layerList objectAtIndex:rightIndex] setPosition:twoRightPoint];
+    [[_layerList objectAtIndex:centerIndex] setPosition:rightPoint];
+    [[_layerList objectAtIndex:leftIndex] setPosition:centerPoint];
+    
+    if (currentIndex != 1) {
+        [[_layerList objectAtIndex:twoLeftIndex] setPosition:leftPoint];
+    }
+    
+    CALayer *twoRightLayer = [_layerList objectAtIndex:twoRightIndex];
+    [twoRightLayer removeFromSuperlayer];
+    [_layerList removeObject:twoRightLayer];
+    
     currentLayer = [self makeLayer];
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
+    [_layerList insertObject:currentLayer atIndex:twoLeftIndex];
+    [mainLayer addSublayer:[_layerList objectAtIndex:twoLeftIndex]];
+    currentIndex--;
+    [self makeTextToCurrentView];
+//    NSLog(@"right currentIndex: %d", currentIndex);
+    if (currentIndex <= 1) {
+        isMoving = NO;
+        currentLayer.position = CGPointMake(currentLayer.position.x, -400);
+        return;
+    }
+    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex-2]];
+    [[_layerList objectAtIndex:twoLeftIndex] setPosition:twoLeftPoint];
+
+}
+
+
+
+- (void) moveLeft {
+    if (currentIndex == [_btnIndexList count] -1 || isMoving) {
+        return;
+    }
+    isMoving = YES;
+    [[_layerList objectAtIndex:leftIndex] setPosition:twoLeftPoint];
     [[_layerList objectAtIndex:centerIndex] setPosition:leftPoint];
     [[_layerList objectAtIndex:rightIndex] setPosition:centerPoint];
-    CALayer *leftLayer = [_layerList objectAtIndex:leftIndex];
-    leftLayer.position = CGPointMake(-self.frame.size.width  *3, leftLayer.position.y);
-    [leftLayer removeFromSuperlayer];
-    [_layerList removeObject:leftLayer];
     
+    if (currentIndex != [_btnIndexList count] -2) {
+        [[_layerList objectAtIndex:twoRightIndex] setPosition:rightPoint];
+    }
+    
+    CALayer *towLeftLayer = [_layerList objectAtIndex:twoLeftIndex];
+    [towLeftLayer removeFromSuperlayer];
+    [_layerList removeObject:towLeftLayer];
+    
+    
+    currentLayer = [self makeLayer];
     [_layerList addObject:currentLayer];
-    [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
-    [mainLayer addSublayer:[_layerList objectAtIndex:rightIndex]];
+    [mainLayer addSublayer:[_layerList objectAtIndex:twoRightIndex]];
+    currentIndex++;
+    [self makeTextToCurrentView];
+    
+    
+    if (currentIndex >= [_btnIndexList count] -2) {
+        isMoving = NO;
+        currentLayer.position = CGPointMake(currentLayer.position.x, -400);
+        return;
+    }
+    
+    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex+2]];
+    [[_layerList objectAtIndex:twoRightIndex] setPosition:twoRightPoint];    
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
@@ -191,24 +294,27 @@
             layer.position = CGPointMake(layer.position.x + delta.x - forePoint.x, layer.position.y);
         }
     } else {
-        if (fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2) {
+        if (fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 && !isMoving) {
             if (delta.x > 0 && currentIndex !=0) {
                 CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
                 [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
                 [self moveRight];
-            } else if(currentIndex != [_btnIndexList count] -1){
+            } else if(delta.x < 0 && currentIndex != [_btnIndexList count] -1){
                 CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x * 0.5);
                 [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
                 [self moveLeft];
+            } else {
+                [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
+                [[_layerList objectAtIndex:centerIndex] setPosition:centerPoint];
+                [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];                
             }
+        } else {
+            [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
+            [[_layerList objectAtIndex:centerIndex] setPosition:centerPoint];
+            [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
         }
-        [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
-        [[_layerList objectAtIndex:centerIndex] setPosition:centerPoint];
-        [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
     }
     forePoint = delta;
-    //    NSLog(@"forePoint : %@ delta : %@", NSStringFromCGPoint(forePoint), NSStringFromCGPoint(delta));
-    
 
 }
 

@@ -8,7 +8,9 @@
 
 #import "ALAssetsManager.h"
 #import <AssetsLibrary/AssetsLibrary.h>
-
+#import <CoreLocation/CoreLocation.h>
+#import <ImageIO/ImageIO.h>
+#import "JSON.h"
 @implementation ALAssetsManager
 @synthesize delegate = _delegate;
 static ALAssetsManager *instance= nil;
@@ -113,10 +115,28 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
     if( photo ){
 //        NSLog(@"%@", [photo valueForProperty:ALAssetPropertyURLs]);
         NSDictionary *myMetadata = [[photo defaultRepresentation] metadata];
-//        NSLog(@"meta : %@", myMetadata);
-        
+//        NSLog(@"metadata : %@", myMetadata);
+        NSDictionary *tiffData = [myMetadata objectForKey:(NSString*)kCGImagePropertyTIFFDictionary];
+
+//        NSLog(@"location :%@", [photo valueForProperty:ALAssetPropertyLocation]);
+        CLLocation *location = [photo valueForProperty:ALAssetPropertyLocation];
         PhotoModel *model = [[PhotoModel alloc] init];
-        [model setTime:[photo valueForProperty:ALAssetPropertyDate]];
+        NSDate *timeStamp = [[[[photo defaultRepresentation] metadata] objectForKey:@"{Exif}"] objectForKey:@"DateTimeOriginal"];
+//        NSLog(@"timeStamp : %@", timeStamp);
+        if (!timeStamp) {
+            timeStamp = [photo valueForProperty:ALAssetPropertyDate];
+        }
+        if (location) {
+            CLLocationCoordinate2D gps = [location coordinate];
+            NSString *address = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude,gps.longitude]]
+                                                         encoding:NSUTF8StringEncoding error:nil];
+            NSDictionary *dic = [address JSONValue];
+//            NSLog(@"dic : %@", dic);
+//            NSLog(@"address : %@", [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]);
+            [model setAddress:[[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]];
+        } 
+        NSLog(@"timeStamp : %@", timeStamp);
+        [model setTime:timeStamp];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
         [model setImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]]];
         [model setAssetUrl:[[[photo defaultRepresentation] url] description]];

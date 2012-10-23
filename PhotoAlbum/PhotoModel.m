@@ -9,7 +9,7 @@
 #import "PhotoModel.h"
 
 @implementation PhotoModel
-@synthesize group, geoAltitude, geoLatitude, geoLongitude;
+@synthesize group, address;
 @synthesize time, assetUrl, thumbImage;
 @synthesize device, image;
 
