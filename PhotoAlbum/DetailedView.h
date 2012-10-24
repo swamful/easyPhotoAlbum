@@ -13,8 +13,6 @@
     NSInteger currentIndex;
     NSInteger makeIndex;
     CALayer *mainLayer;
-    UILabel *_titleLabel;
-    UILabel *_addressLabel;
     
     NSMutableArray *_layerList;
     ALAssetsManager *alAssetManager;
@@ -29,6 +27,7 @@
     CGPoint forePoint;
     BOOL isInit;
     BOOL isMoving;
+    BOOL isDownloadFinish;
     
     NSMutableArray *requestImageQueue;
 }

@@ -11,15 +11,6 @@
 
 @implementation MainViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -104,22 +95,23 @@
         
         [CATransaction commit];
     }
-    NSLog(@"scale: %f", recognizer.scale);
 }
 
 - (void) changeShowingView {
     for (NSDictionary *dataDic in _allLayerList) {
         for (UIButton *btn in [[dataDic allValues] objectAtIndex:0]) {
             [btn removeFromSuperview];
-//            [btn removeTarget:[btn superview] action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
         }
     }
     for (UIView *view in [self.view subviews]) {
         [view removeFromSuperview];
     }
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
     switch (showingViewType) {
         case TOTALVIEW:
-            galleryView = [[PhotoGalleryView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withDataList:_allLayerList withTotalCount:totalCount];
+            [[UIApplication sharedApplication] setStatusBarHidden:YES];
+            galleryView = [[PhotoGalleryView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) withDataList:_btnIndexList withTotalCount:totalCount];
             [self.view addSubview:galleryView];
             break;
         case INDEXVIEW:
@@ -137,11 +129,9 @@
 }
 
 - (void) selectThis:(id) control {
-    NSLog(@"here selectThis");
     showingViewType = DETAILEDVIEW;
     selectedIndex = [control tag];
     [self changeShowingView];
-    NSLog(@"btn : %d layer name :%@ frame:%@ super :%d", [control tag], [[control layer] name], NSStringFromCGRect([control frame]), [[control superview] tag]);
 }
 
 - (void) didFinishLoadFullLibrary:(NSDictionary *)dataList {
@@ -181,17 +171,29 @@
 //for any version before 6.0
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    //only allow landscape
-    return (interfaceOrientation != UIInterfaceOrientationMaskPortraitUpsideDown);
+    NSLog(@"shouldAutorotateToInterfaceOrientation showView : %d", showingViewType);
+    if (showingViewType == TOTALVIEW) {
+        return interfaceOrientation == UIInterfaceOrientationLandscapeRight;
+    } 
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 //for 6.0+
 - (BOOL)shouldAutorotate{
-    return [UIDevice currentDevice].orientation != UIInterfaceOrientationPortraitUpsideDown;
+    NSLog(@"shouldAutorotate showView : %d", showingViewType);
+    if (showingViewType == TOTALVIEW) {
+        return [UIDevice currentDevice].orientation == UIInterfaceOrientationLandscapeRight;
+    }
+    return ([UIDevice currentDevice].orientation == UIInterfaceOrientationPortrait);
 }
 
 - (NSUInteger)supportedInterfaceOrientations{
-    return UIInterfaceOrientationMaskAllButUpsideDown;
+    NSLog(@"supportedInterfaceOrientations showView : %d", showingViewType);
+    if (showingViewType == TOTALVIEW) {
+        return UIInterfaceOrientationMaskLandscapeRight;
+    }
+    return UIInterfaceOrientationMaskPortrait;
 }
-*/
+ */
+
 @end
