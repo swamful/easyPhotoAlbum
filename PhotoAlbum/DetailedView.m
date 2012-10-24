@@ -91,8 +91,8 @@
         [requestImageQueue addObject:twoLeftNumber];
         [requestImageQueue addObject:twoRightNumber];
         
-        [[_layerList objectAtIndex:twoLeftIndex] setPosition:leftPoint];
-        [[_layerList objectAtIndex:twoRightIndex] setPosition:leftPoint];
+        [[_layerList objectAtIndex:twoLeftIndex] setPosition:twoLeftPoint];
+        [[_layerList objectAtIndex:twoRightIndex] setPosition:twoRightPoint];
         [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];
         [[_layerList objectAtIndex:centerIndex] setPosition:centerPoint];
         [[_layerList objectAtIndex:rightIndex] setPosition:rightPoint];
