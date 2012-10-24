@@ -22,6 +22,7 @@
 
 - (id)initWithFrame:(CGRect)frame withDataList:(NSArray *) dataList withTotalCount:(NSInteger) totalCount
 {
+    NSLog(@"self frame : %@", NSStringFromCGRect(frame));
     self = [super initWithFrame:frame];
 
     if (self) {
@@ -46,22 +47,23 @@
 - (void) makeTotalMainBoardView:(NSInteger) heightCount {
     for (int i = 0; i <columnCount; i++) {
         UIView *view = [[UIView alloc] init];
+        view.userInteractionEnabled = NO;
         view.tag = i;
         [self addSubview:view];
         CALayer *layer = [view layer];
         layer.transform = [self getTransForm3DIdentity];
         layer.transform = CATransform3DRotate(layer.transform, DEGREES_TO_RADIANS(rotateAngle * ((i % columnCount))), 0, 1, 0);
         layer.anchorPointZ = -anchorPotinZ;
-        layer.position = CGPointMake(self.center.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5);
-//        layer.position = CGPointMake(self.center.x, self.center.y);
-        layer.bounds = CGRectMake(0, 0, self.frame.size.width, heightCount * (thumbSize + thumbMargin) + 30);
+        layer.position = CGPointMake(self.center.x, 15 *MIN(heightCount,3) + i * 9);
+        layer.bounds = CGRectMake(0, 0, self.frame.size.width, MIN(heightCount,3) * (thumbSize + thumbMargin));
         [_mainBoardList addObject:layer];
+        
     }
 }
 
 - (void) makeDimmedLayer {
     CALayer *dimmedLayer = [CALayer layer];
-    dimmedLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    dimmedLayer.frame = CGRectMake(0, -20, self.frame.size.width, self.frame.size.height);
     dimmedLayer.backgroundColor = [UIColor blackColor].CGColor;
     dimmedLayer.opacity = 0.7;
 
@@ -85,10 +87,10 @@
     
     columnCount = columnCount + 4 * sidNum;
     m34 = -1.0f/ (3000.0f + 400 * sidNum);
-    anchorPotinZ = 500.0f + 60 * sidNum;
+    anchorPotinZ = 300.0f + 60 * sidNum;
     
-    self.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-    rotateAngle = RADIANS_TO_DEGREE(2 * M_PI) / columnCount;
+//    self.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    rotateAngle = RADIANS_TO_DEGREE(4*M_PI) / columnCount;
     NSLog(@"list count : %d", [btnIndexList count]);
     NSLog(@"total count : %d", count);
     NSMutableArray *selectedList = [NSMutableArray array];
@@ -99,10 +101,18 @@
     NSInteger selectedCount = [selectedList count] / columnCount;
     [self makeTotalMainBoardView:selectedCount];
 
-    
+    for (int i = -2 ; i <  4; i++) {
+        UIView *view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount) % columnCount)];
+        view.userInteractionEnabled = YES;
+        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 10) % columnCount)];
+        view.userInteractionEnabled = YES;
+        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 20) % columnCount)];
+        view.userInteractionEnabled = YES;
+        
+    }
     
 
-    for (int i = 0 ; i < MIN(160, selectedCount * columnCount) ; i++) {
+    for (int i = 0 ; i < MIN(120, selectedCount * columnCount) ; i++) {
         UIView *view = [[self subviews] objectAtIndex:(i % columnCount)];
         UIButton *btn = [selectedList objectAtIndex:arc4random() % [selectedList count]];
         [selectedList removeObject:btn];
@@ -166,11 +176,9 @@
     animationGroup.delegate = self;
     [animationGroup setValue:[NSString stringWithFormat:@"rotating%d",i] forKey:@"animation"];
     animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
-        [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
-    } else {
-        [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
-    }
+
+    [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
+
     
     [layer addAnimation:animationGroup forKey:@"animationGroup"];
 }
@@ -274,12 +282,16 @@
             view.layer.position = [(CALayer*)[view.layer presentationLayer] position];
             view.layer.transform = [(CALayer*)[view.layer presentationLayer] transform];
         }
-        
-        for (int i = -5 ; i <  5; i++) {
+        for (int i = -2 ; i <  4; i++) {
             UIView *view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount) % columnCount)];
             view.userInteractionEnabled = YES;
+            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 10) % columnCount)];
+            view.userInteractionEnabled = YES;
+            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 20) % columnCount)];
+            view.userInteractionEnabled = YES;
+
         }
-        isAnimating = NO;        
+        isAnimating = NO;
         if (isSliding) {
             NSInteger moveStep = -1;
             currentIndex = (currentIndex - moveStep + columnCount) % columnCount;
