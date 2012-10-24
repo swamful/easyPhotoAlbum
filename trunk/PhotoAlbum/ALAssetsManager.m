@@ -124,19 +124,20 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
 //        NSLog(@"timeStamp : %@", timeStamp);
         if (!timeStamp) {
             timeStamp = [photo valueForProperty:ALAssetPropertyDate];
+            timeStamp = [timeStamp dateByAddingTimeInterval:60*60*9];
         }
         if (location) {
             CLLocationCoordinate2D gps = [location coordinate];
             NSString *json = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude,gps.longitude]]
                                                          encoding:NSUTF8StringEncoding error:nil];
+//            NSLog(@"json : %@", json);
             NSDictionary *dic = [json JSONValue];
-//            NSLog(@"dic : %@", dic);
 //            NSLog(@"address : %@", [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]);
             NSString *address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
             address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
             [model setAddress:address];
         } 
-        NSLog(@"timeStamp : %@", timeStamp);
+//        NSLog(@"timeStamp : %@", timeStamp);
         [model setTime:timeStamp];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
         [model setImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]]];

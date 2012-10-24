@@ -122,21 +122,15 @@
         isInit = YES;
         [self makeLayerList];
         
-        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 60)];
-        _titleLabel.backgroundColor = [UIColor grayColor];
-        _titleLabel.alpha = 0.5;
-        _titleLabel.textColor = [UIColor whiteColor];
-        _titleLabel.textAlignment = UITextAlignmentCenter;
-        _titleLabel.font = [UIFont fontWithName:@"GillSans-Italic" size:30];
-        [self addSubview:_titleLabel];
+        UIView *topDimmedView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 60)];
+        topDimmedView.backgroundColor = [UIColor grayColor];
+        topDimmedView.alpha = 0.5;
+        [self addSubview:topDimmedView];
         
-        _addressLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 40, self.frame.size.width, 40)];
-        _addressLabel.backgroundColor = [UIColor grayColor];
-        _addressLabel.alpha = 0.5;
-        _addressLabel.textColor = [UIColor whiteColor];
-        _addressLabel.textAlignment = UITextAlignmentCenter;
-        _addressLabel.font = [UIFont fontWithName:@"GillSans-Italic" size:18];
-        [self addSubview:_addressLabel];
+        UIView *bottomDimmedView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 40, self.frame.size.width, 40)];
+        bottomDimmedView.backgroundColor = [UIColor grayColor];
+        bottomDimmedView.alpha = 0.5;
+        [self addSubview:bottomDimmedView];
         
         UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         panRecognizer.minimumNumberOfTouches = 1;
@@ -161,15 +155,39 @@
 }
 
 - (CALayer*) makeLayer {
+    CALayer *boardLayer = [CALayer layer];
+    boardLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    
     CALayer *layer = [CALayer layer];
     layer.transform = [self getViewTransForm3DIdentity];
     layer.transform = CATransform3DScale(layer.transform, 0.7, 0.7,0.7);
     layer.bounds = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    layer.position = CGPointMake(boardLayer.position.x, boardLayer.position.y);
+    layer.sublayerTransform = CATransform3DIdentity;
+    layer.name = @"imageLayer";
     layer.borderWidth = 1.0f;
     layer.cornerRadius = 20.0f;
     layer.anchorPointZ = -300.f;
     layer.masksToBounds = YES;
-    return layer;
+    [boardLayer addSublayer:layer];
+    
+    CATextLayer *dateLayer = [CATextLayer layer];
+    dateLayer.frame = CGRectMake(50, 10, self.frame.size.width - 100, 50);
+    dateLayer.alignmentMode = kCAAlignmentCenter;
+    dateLayer.name = @"dateLayer";
+    dateLayer.font = (__bridge CFTypeRef)([UIFont fontWithName:@"GillSans-Italic" size:13].fontName);
+    dateLayer.fontSize = 30.0f;
+    [boardLayer addSublayer:dateLayer];
+    
+    CATextLayer *addressLayer = [CATextLayer layer];
+    addressLayer.frame = CGRectMake(40, self.frame.size.height - 30, self.frame.size.width - 80, 30);
+    addressLayer.alignmentMode = kCAAlignmentCenter;
+    addressLayer.name = @"addressLayer";
+    addressLayer.font = (__bridge CFTypeRef)([UIFont fontWithName:@"GillSans-Italic" size:13].fontName);
+    addressLayer.fontSize = 15.0f;
+
+    [boardLayer addSublayer:addressLayer];
+    return boardLayer;
 }
 
 - (void) requestPhoto:(NSNumber*) index {
@@ -184,33 +202,34 @@
     [alAssetManager getPhotoDataWithAssetURL:[NSURL URLWithString:[self getAlassetUrlStringWithBtnIndex:index]]];
 }
 
-- (void) drawImage:(PhotoModel *) model {
-    currentLayer.contents = (id) [model image].CGImage;
+- (void) drawLayerWithPhotoModel:(PhotoModel*)model {
     NSArray *timeList = [[[model time] description] componentsSeparatedByString:@" "];
     NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
     NSString *date = [dateList componentsJoinedByString:@"."];
     
     NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
     NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
+    time = [time stringByReplacingOccurrencesOfString:@"-" withString:@"."];
     currentLayer.name = time;
-    NSLog(@"address : %@", [model address]);
-    [_addressLabel setText:[model address]];
+    for (CATextLayer *layer in [currentLayer sublayers]) {
+        if ([layer.name isEqualToString:@"dateLayer"]) {
+            layer.string = time;
+        } else if ([layer.name isEqualToString:@"imageLayer"]) {
+            layer.contents = (id) [model image].CGImage;
+        } else if ([layer.name isEqualToString:@"addressLayer"]) {
+            layer.string = [model address];
+        }
+    }
+}
+
+- (void) drawImage:(PhotoModel *) model {
+    [self drawLayerWithPhotoModel:model];
     isMoving = NO;
 }
 
 - (void) didFinishLoadPhotoModel:(PhotoModel *)model {
     if (isInit) {
-        currentLayer.contents = (id) [model image].CGImage;
-        NSArray *timeList = [[[model time] description] componentsSeparatedByString:@" "];
-        NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
-        NSString *date = [dateList componentsJoinedByString:@"."];
-        
-        NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
-        NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
-        currentLayer.name = time;
-        NSLog(@"address : %@", [model address]);
-        [_addressLabel setText:[model address]];
-
+        [self drawLayerWithPhotoModel:model];
         [self makeLayerList];
     } else {
         [self performSelectorOnMainThread:@selector(drawImage:) withObject:model waitUntilDone:NO];
@@ -219,7 +238,7 @@
 
 - (void) makeTextToCurrentView {
 //    NSLog(@"currentIndex : %d name : %@",currentIndex, [[_layerList objectAtIndex:centerIndex] name]);
-    [_titleLabel setText:[[_layerList objectAtIndex:centerIndex] name]];
+//    [_titleLabel setText:[[_layerList objectAtIndex:centerIndex] name]];
 }
 
 - (void) moveRight {
@@ -293,6 +312,9 @@
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
+    if (isInit) {
+        return;
+    }
     [CATransaction setDisableActions:NO];
     [CATransaction setValue:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear] forKey:kCATransactionAnimationTimingFunction];
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
@@ -309,11 +331,11 @@
         if (fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 && !isMoving) {
             if (delta.x > 0 && currentIndex !=0) {
                 CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
-                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
                 [self moveRight];
             } else if(delta.x < 0 && currentIndex != [_btnIndexList count] -1){
                 CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x * 0.5);
-                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.03)] forKey:kCATransactionAnimationDuration];
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
                 [self moveLeft];
             } else {
                 [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];

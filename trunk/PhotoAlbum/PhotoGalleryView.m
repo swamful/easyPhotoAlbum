@@ -9,14 +9,14 @@
 #import "PhotoGalleryView.h"
 #import "PhotoModel.h"
 
-#define thumbMargin 8.0f
+#define thumbMargin 1.0f
 #define thumbSize 72.0f
 
 @implementation PhotoGalleryView
 - (CATransform3D) getTransForm3DIdentity {
     CATransform3D transform = CATransform3DIdentity;
     transform.m34 = m34;
-    transform = CATransform3DScale(transform, 0.8, 0.8, 0.8);
+    transform = CATransform3DScale(transform, 0.5, 0.5, 0.5);
     return transform;
 }
 
@@ -43,25 +43,29 @@
     return self;
 }
 
-- (void) makeTotalMainBoardView {
+- (void) makeTotalMainBoardView:(NSInteger) heightCount {
     for (int i = 0; i <columnCount; i++) {
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(self.center.x - thumbMargin/2, 0, thumbSize + thumbMargin * 2, self.frame.size.height)];
+        UIView *view = [[UIView alloc] init];
         view.tag = i;
         [self addSubview:view];
         CALayer *layer = [view layer];
         layer.transform = [self getTransForm3DIdentity];
         layer.transform = CATransform3DRotate(layer.transform, DEGREES_TO_RADIANS(rotateAngle * ((i % columnCount))), 0, 1, 0);
         layer.anchorPointZ = -anchorPotinZ;
+        layer.position = CGPointMake(self.center.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5);
+//        layer.position = CGPointMake(self.center.x, self.center.y);
+        layer.bounds = CGRectMake(0, 0, self.frame.size.width, heightCount * (thumbSize + thumbMargin) + 30);
         [_mainBoardList addObject:layer];
     }
 }
 
 - (void) makeDimmedLayer {
-    UIView *dimmedView = [[UIView alloc] initWithFrame:CGRectMake(0, -300, self.frame.size.width, self.frame.size.height + 300)];
-    dimmedView.backgroundColor = [UIColor blackColor];
-    dimmedView.alpha = 0.7;
+    CALayer *dimmedLayer = [CALayer layer];
+    dimmedLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    dimmedLayer.backgroundColor = [UIColor blackColor].CGColor;
+    dimmedLayer.opacity = 0.7;
 
-    [self addSubview:dimmedView];
+    [self.layer addSublayer:dimmedLayer];
 }
 
 
@@ -76,63 +80,45 @@
     self.layer.transform = CATransform3DIdentity;
 }
 
-- (void) showTotalView:(NSArray*) allLayerList withCount:(NSInteger) count {
-    NSInteger sidNum = count / 100;
+- (void) showTotalView:(NSArray*) btnIndexList withCount:(NSInteger) count {
+    NSInteger sidNum = 1;
     
     columnCount = columnCount + 4 * sidNum;
     m34 = -1.0f/ (3000.0f + 400 * sidNum);
     anchorPotinZ = 500.0f + 60 * sidNum;
     
-    self.frame = CGRectMake(0, 0, self.frame.size.width, MAX(self.frame.size.height, ((count + [allLayerList count]) / columnCount + 2) * (thumbSize + thumbMargin)));
+    self.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     rotateAngle = RADIANS_TO_DEGREE(2 * M_PI) / columnCount;
-    NSLog(@"list count : %d", [allLayerList count]);
+    NSLog(@"list count : %d", [btnIndexList count]);
     NSLog(@"total count : %d", count);
-
-
-    UIColor *colorList[10] = {[UIColor redColor],[UIColor blueColor],
-        [UIColor greenColor],[UIColor yellowColor],
-        [UIColor cyanColor],[UIColor grayColor],
-        [UIColor purpleColor],[UIColor orangeColor],
-        [UIColor brownColor],[UIColor whiteColor]};
-    [self makeTotalMainBoardView];
-    
+    NSMutableArray *selectedList = [NSMutableArray array];
+    for (UIButton *btn in btnIndexList) {
+        [selectedList addObject:btn];
+    }
     currentIndex = 0;
-    
-    NSInteger tcount = 0;
-    for (NSDictionary *dic in allLayerList) {
-        NSString *key = [[dic allKeys] objectAtIndex:0];
-        CALayer *boardLayer = [_mainBoardList objectAtIndex:(tcount % columnCount)];
-        UIColor *backColor = colorList[arc4random()%10];
-        
-        CATextLayer *textLayer = [CATextLayer layer];
-        textLayer.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
-        textLayer.alignmentMode = kCAAlignmentLeft;
-        textLayer.fontSize = 13.0f;
-        textLayer.backgroundColor = backColor.CGColor;
-        textLayer.alignmentMode = kCAAlignmentCenter;
-        textLayer.string = key;
-        [boardLayer addSublayer:textLayer];
-        tcount ++;
-        
-        for (int j = 0 ; j < [[dic objectForKey:key] count] ; j ++) {
-            UIView *view = [[self subviews] objectAtIndex:(tcount % columnCount)];
-            UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
-            btn.frame = CGRectMake(thumbMargin, (tcount / columnCount) * (thumbSize + thumbMargin) + ((thumbSize + thumbMargin) / columnCount) * (tcount % columnCount), thumbSize, thumbSize);
+    NSInteger selectedCount = [selectedList count] / columnCount;
+    [self makeTotalMainBoardView:selectedCount];
 
-            CALayer *layer = [btn layer];
-            layer.borderColor = backColor.CGColor;
-            layer.borderWidth = 1.5f;
-            layer.cornerRadius = 0.0f;
-            [view addSubview:btn];
-            
-            _lastLayer = layer;
-            tcount ++;
-        }
+    
+    
+
+    for (int i = 0 ; i < MIN(160, selectedCount * columnCount) ; i++) {
+        UIView *view = [[self subviews] objectAtIndex:(i % columnCount)];
+        UIButton *btn = [selectedList objectAtIndex:arc4random() % [selectedList count]];
+        [selectedList removeObject:btn];
+        btn.frame = CGRectMake(thumbMargin, (i / columnCount) * (thumbSize + thumbMargin), thumbSize, thumbSize);
+
+        CALayer *layer = [btn layer];
+        layer.borderColor = [UIColor whiteColor].CGColor;
+        layer.borderWidth = 1.5f;
+        layer.cornerRadius = 0.0f;
+        [view addSubview:btn];
+
+        _lastLayer = layer;
     }
     CGFloat diff =  [[_mainBoardList objectAtIndex:0] frame].origin.y;
     firstPointY = diff;
-    self.frame = CGRectMake(0, -diff + thumbSize /2, self.frame.size.width, self.frame.size.height + diff - thumbSize /2);
-    NSLog(@"self.frame : %@", NSStringFromCGRect(self.frame));
+//    self.frame = CGRectMake(0, -diff + thumbSize /2, self.frame.size.width, self.frame.size.height + diff - thumbSize /2);
     [self makeDimmedLayer];
 }
 
@@ -157,9 +143,9 @@
 - (void) rotateMovingAnimation:(NSInteger) moveStep toLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
     CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
     if (moveStep > 0) {
-        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y + ((thumbSize + thumbMargin) / columnCount) * (moveStep % columnCount))];
+        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5)];
     } else {
-        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y - ((thumbSize + thumbMargin) / columnCount) * ((-moveStep) % columnCount))];
+        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5)];
     }
     moveAnimation.duration = duration;
     moveAnimation.fillMode = kCAFillModeForwards;
@@ -183,7 +169,7 @@
     if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
         [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
     } else {
-        [animationGroup setAnimations:[NSArray arrayWithObjects:moveAnimation, rotationAnimation, nil]];
+        [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
     }
     
     [layer addAnimation:animationGroup forKey:@"animationGroup"];
@@ -247,6 +233,8 @@
         if (isDiresctionWidth) {
             [self rotateMovingAnimation:moveStep toLayer:layer index:i++ duration:0.5];
         } else {
+            isAnimating = NO;
+            return;
             if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
                 isAnimating = NO;
                 return;
