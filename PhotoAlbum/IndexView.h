@@ -8,9 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
-@interface IndexView : UIView {
+@interface IndexView : UIView <UIScrollViewDelegate> {
     NSMutableArray *_mainBoardList;
     CGFloat m34;
+    
+    UIView *_bottomView;
+    CGPoint forePoint;
+    UIScrollView *_mainScroll;
+    
+    CALayer *_slideLayer;
+    BOOL isPanning;
 }
 
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
