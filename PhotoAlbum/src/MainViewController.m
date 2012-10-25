@@ -107,7 +107,6 @@
         [view removeFromSuperview];
     }
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait];
     switch (showingViewType) {
         case TOTALVIEW:
             [[UIApplication sharedApplication] setStatusBarHidden:YES];

@@ -41,7 +41,6 @@
         _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
         _slideLayer.opacity = 0.3;
         _slideLayer.cornerRadius = 20.0f;
-        NSLog(@"slide Layer : %@", NSStringFromCGRect(_slideLayer.frame));
         [_bottomView.layer addSublayer:_slideLayer];
         
         
@@ -61,13 +60,7 @@
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
     if (!isPanning) {
-//        CGFloat positionX = MAX(20, scrollView.contentOffset.x * ((_bottomView.frame.size.width - 40)/ (scrollView.contentSize.width)) + 20);
-//        positionX = MIN(_bottomView.frame.size.width -20, positionX);
         _slideLayer.position = CGPointMake(scrollView.contentOffset.x * ((_bottomView.frame.size.width - 40.0f)/ (scrollView.contentSize.width)) + 20.0f, _slideLayer.position.y);
-        NSLog(@"scroll position : %@", NSStringFromCGPoint(_slideLayer.position));
-        
-//        CGPoint slidePosition = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width - scrollView.frame.size.width)), _slideLayer.position.y);
-//        _slideLayer.position = slidePosition;        
     }
     
 }
@@ -77,13 +70,9 @@
     NSInteger thumbSize = 40;
     NSInteger thumbMargin = 2;
 
-    
-
     NSLog(@"list count : %d", [allLayerList count]);
     CGFloat lastWidth = 0;
-
-    
-    
+ 
     for (NSDictionary *dic in allLayerList) {
         NSString *key = [[dic allKeys] objectAtIndex:0];
         UIView *view = [[UIView alloc] initWithFrame:CGRectMake(lastWidth, 50, (([[dic objectForKey:key] count] -1) / 8) * (thumbMargin + thumbSize + 5) + (thumbMargin + thumbSize + 5), _mainScroll.frame.size.height - 50)];
@@ -149,7 +138,6 @@
     lineLayer.opacity = 0.5;
     lineLayer.frame = CGRectMake(0, self.frame.size.height - 101, _mainScroll.contentSize.width, 1);
     [_mainScroll.layer addSublayer:lineLayer];
-    NSLog(@"contentSize : %@", NSStringFromCGSize(_mainScroll.contentSize));
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
@@ -157,13 +145,11 @@
     CGPoint location = [pan locationInView:pan.view];
     
     if (!CGRectContainsPoint(_slideLayer.frame, location)) {
-        NSLog(@"_slideLayer.frame : %@  location : %@", NSStringFromCGRect(_slideLayer.frame), NSStringFromCGPoint(location));
         return;
     }
     
     CGRect gestureBound = CGRectMake(20, 0, _bottomView.frame.size.width - 40, _bottomView.frame.size.height);
     if (!CGRectContainsPoint(gestureBound, location)) {
-        NSLog(@"out bounds location : %@", NSStringFromCGPoint(location));
         [CATransaction setDisableActions:NO];
         _slideLayer.opacity = 0.3;
         _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
@@ -172,10 +158,10 @@
         _slideLayer.shadowOpacity = 0.0f;
         if (location.x < 20) {
             _slideLayer.position = CGPointMake(20, _slideLayer.position.y);
-           [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
+           [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:NO];
         } else {
             _slideLayer.position = CGPointMake(_bottomView.frame.size.width - 20, _slideLayer.position.y);
-           [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:YES];
+           [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:NO];
         }
         if (pan.state >= UIGestureRecognizerStateEnded) {
             isPanning = NO;            

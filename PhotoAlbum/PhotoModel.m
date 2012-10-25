@@ -11,7 +11,7 @@
 @implementation PhotoModel
 @synthesize group, address;
 @synthesize time, assetUrl, thumbImage;
-@synthesize device, image;
+@synthesize device, image, fullImage;
 
 - (void) releaseImage {
     self.thumbImage = nil;

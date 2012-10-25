@@ -139,6 +139,7 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
         } 
 //        NSLog(@"timeStamp : %@", timeStamp);
         [model setTime:timeStamp];
+        [model setFullImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullResolutionImage]]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
         [model setImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]]];
         [model setAssetUrl:[[[photo defaultRepresentation] url] description]];
