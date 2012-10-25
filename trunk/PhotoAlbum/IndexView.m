@@ -21,9 +21,55 @@
     self = [super initWithFrame:frame];
     if (self) {
         _mainBoardList = [[NSMutableArray alloc] init];
+        _mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - 100)];
+        _mainScroll.showsHorizontalScrollIndicator = NO;
+        _mainScroll.showsVerticalScrollIndicator = NO;
+        _mainScroll.alwaysBounceHorizontal = YES;
+        _mainScroll.delegate = self;
+        [self addSubview:_mainScroll];
+
+        
         [self initLayerwithImageDataList:allLayerList];
+        
+        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 100)];
+        _bottomView.backgroundColor = [UIColor blackColor];
+        [self addSubview:_bottomView];
+        
+        _slideLayer = [CALayer layer];
+        _slideLayer.position = CGPointMake(20, _bottomView.frame.size.height / 2);
+        _slideLayer.backgroundColor = [UIColor whiteColor].CGColor;
+        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
+        _slideLayer.opacity = 0.3;
+        _slideLayer.cornerRadius = 20.0f;
+        NSLog(@"slide Layer : %@", NSStringFromCGRect(_slideLayer.frame));
+        [_bottomView.layer addSublayer:_slideLayer];
+        
+        
+        UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+        panRecognizer.minimumNumberOfTouches = 1;
+        [_bottomView addGestureRecognizer:panRecognizer];
+        [CATransaction setDisableActions:NO];
+        
+        isPanning = NO;
     }
     return self;
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    isPanning = NO;
+}
+
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (!isPanning) {
+//        CGFloat positionX = MAX(20, scrollView.contentOffset.x * ((_bottomView.frame.size.width - 40)/ (scrollView.contentSize.width)) + 20);
+//        positionX = MIN(_bottomView.frame.size.width -20, positionX);
+        _slideLayer.position = CGPointMake(scrollView.contentOffset.x * ((_bottomView.frame.size.width - 40.0f)/ (scrollView.contentSize.width)) + 20.0f, _slideLayer.position.y);
+        NSLog(@"scroll position : %@", NSStringFromCGPoint(_slideLayer.position));
+        
+//        CGPoint slidePosition = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width - scrollView.frame.size.width)), _slideLayer.position.y);
+//        _slideLayer.position = slidePosition;        
+    }
+    
 }
 
 - (void) initLayerwithImageDataList:(NSArray *)allLayerList {
@@ -31,11 +77,6 @@
     NSInteger thumbSize = 40;
     NSInteger thumbMargin = 2;
 
-    UIScrollView *_mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-    _mainScroll.showsHorizontalScrollIndicator = NO;
-    _mainScroll.showsVerticalScrollIndicator = NO;
-    _mainScroll.alwaysBounceHorizontal = YES;
-    [self addSubview:_mainScroll];
     
 
     NSLog(@"list count : %d", [allLayerList count]);
@@ -45,7 +86,7 @@
     
     for (NSDictionary *dic in allLayerList) {
         NSString *key = [[dic allKeys] objectAtIndex:0];
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(lastWidth, 50, (([[dic objectForKey:key] count] -1) / 8) * (thumbMargin + thumbSize + 5) + (thumbMargin + thumbSize + 5), (thumbMargin + thumbSize) *7)];
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(lastWidth, 50, (([[dic objectForKey:key] count] -1) / 8) * (thumbMargin + thumbSize + 5) + (thumbMargin + thumbSize + 5), _mainScroll.frame.size.height - 50)];
         view.backgroundColor = [UIColor blackColor];
         [_mainScroll addSubview:view];
         CATextLayer *textLayer = [CATextLayer layer];
@@ -74,41 +115,101 @@
 
         }
         
-        UIGraphicsBeginImageContext(view.layer.bounds.size);
-        [view.layer renderInContext:UIGraphicsGetCurrentContext()];
-        UIImage *oldImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-        
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [[UIScreen mainScreen] scale] > 1) {
-            CALayer *reflectionLayer = [CALayer layer];
-            reflectionLayer.contents = (id)oldImage.CGImage;
-            reflectionLayer.frame = CGRectMake(15, view.frame.size.height+25, view.frame.size.width, view.frame.size.height);
-            reflectionLayer.opacity = 0.7;
-            // Transform X by 180 degrees
-            [reflectionLayer setValue:[NSNumber numberWithFloat:DEGREES_TO_RADIANS(215)] forKeyPath:@"transform.rotation.x"];
-            [reflectionLayer setValue:[NSNumber numberWithFloat:DEGREES_TO_RADIANS(10)] forKeyPath:@"transform.rotation.y"];
-            [view.layer addSublayer:reflectionLayer];
-    
-            
-            CAGradientLayer *gradientLayer = [CAGradientLayer layer];
-            gradientLayer.colors = [NSArray arrayWithObjects:(id)[[UIColor clearColor] CGColor],(id)[[UIColor whiteColor] CGColor], nil];
-            gradientLayer.startPoint = CGPointMake(0.5, 0.0);
-            gradientLayer.endPoint = CGPointMake(0.5, 0.7);
-            gradientLayer.bounds = reflectionLayer.bounds;
-            gradientLayer.position = CGPointMake(reflectionLayer.bounds.size.width / 2 , reflectionLayer.bounds.size.height * 0.65);
-            // Add gradient layer as a mask
-            reflectionLayer.mask = gradientLayer;
-        }
+//        UIGraphicsBeginImageContext(view.layer.bounds.size);
+//        [view.layer renderInContext:UIGraphicsGetCurrentContext()];
+//        UIImage *oldImage = UIGraphicsGetImageFromCurrentImageContext();
+//        UIGraphicsEndImageContext();
+//
+//        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [[UIScreen mainScreen] scale] > 1) {
+//            CALayer *reflectionLayer = [CALayer layer];
+//            reflectionLayer.contents = (id)oldImage.CGImage;
+//            reflectionLayer.frame = CGRectMake(15, view.frame.size.height+25, view.frame.size.width, view.frame.size.height);
+//            reflectionLayer.opacity = 0.7;
+//            // Transform X by 180 degrees
+//            [reflectionLayer setValue:[NSNumber numberWithFloat:DEGREES_TO_RADIANS(215)] forKeyPath:@"transform.rotation.x"];
+//            [reflectionLayer setValue:[NSNumber numberWithFloat:DEGREES_TO_RADIANS(10)] forKeyPath:@"transform.rotation.y"];
+//            [view.layer addSublayer:reflectionLayer];
+//    
+//            
+//            CAGradientLayer *gradientLayer = [CAGradientLayer layer];
+//            gradientLayer.colors = [NSArray arrayWithObjects:(id)[[UIColor clearColor] CGColor],(id)[[UIColor whiteColor] CGColor], nil];
+//            gradientLayer.startPoint = CGPointMake(0.5, 0.0);
+//            gradientLayer.endPoint = CGPointMake(0.5, 0.7);
+//            gradientLayer.bounds = reflectionLayer.bounds;
+//            gradientLayer.position = CGPointMake(reflectionLayer.bounds.size.width / 2 , reflectionLayer.bounds.size.height * 0.65);
+//            // Add gradient layer as a mask
+//            reflectionLayer.mask = gradientLayer;
+//        }
         
         lastWidth = (([[dic objectForKey:key] count] -1) / 7) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) + lastWidth;
-        _mainScroll.contentSize = CGSizeMake(lastWidth + thumbMargin, self.frame.size.height);
+        _mainScroll.contentSize = CGSizeMake(lastWidth + thumbMargin, _mainScroll.frame.size.height);
     }
     CALayer *lineLayer = [CALayer layer];
     lineLayer.backgroundColor = [UIColor darkGrayColor].CGColor;
     lineLayer.opacity = 0.5;
-    lineLayer.frame = CGRectMake(0, (thumbMargin + thumbSize) *7 + 103, _mainScroll.contentSize.width, 1);
+    lineLayer.frame = CGRectMake(0, self.frame.size.height - 101, _mainScroll.contentSize.width, 1);
     [_mainScroll.layer addSublayer:lineLayer];
+    NSLog(@"contentSize : %@", NSStringFromCGSize(_mainScroll.contentSize));
 }
 
+- (void) handlePan:(UIPanGestureRecognizer *) recognizer {
+    UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
+    CGPoint location = [pan locationInView:pan.view];
+    
+    if (!CGRectContainsPoint(_slideLayer.frame, location)) {
+        NSLog(@"_slideLayer.frame : %@  location : %@", NSStringFromCGRect(_slideLayer.frame), NSStringFromCGPoint(location));
+        return;
+    }
+    
+    CGRect gestureBound = CGRectMake(20, 0, _bottomView.frame.size.width - 40, _bottomView.frame.size.height);
+    if (!CGRectContainsPoint(gestureBound, location)) {
+        NSLog(@"out bounds location : %@", NSStringFromCGPoint(location));
+        [CATransaction setDisableActions:NO];
+        _slideLayer.opacity = 0.3;
+        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
+        _slideLayer.position = CGPointMake(15, _slideLayer.position.y);
+        _slideLayer.cornerRadius = 20.0f;
+        _slideLayer.shadowOpacity = 0.0f;
+        if (location.x < 20) {
+            _slideLayer.position = CGPointMake(20, _slideLayer.position.y);
+           [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
+        } else {
+            _slideLayer.position = CGPointMake(_bottomView.frame.size.width - 20, _slideLayer.position.y);
+           [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:YES];
+        }
+        if (pan.state >= UIGestureRecognizerStateEnded) {
+            isPanning = NO;            
+        }
 
+        return;
+    }
+    
+    [CATransaction setDisableActions:YES];
+    CGFloat positionX = location.x * (_bottomView.frame.size.width - 40) / _bottomView.frame.size.width;
+    _slideLayer.position = CGPointMake(positionX + 20, _slideLayer.position.y);
+    location = CGPointMake(positionX * ((_mainScroll.contentSize.width - _mainScroll.frame.size.width)/ (_bottomView.frame.size.width - 40)) , location.y);
+    if (pan.state == UIGestureRecognizerStateBegan) {
+        [CATransaction setDisableActions:NO];
+        _slideLayer.bounds = CGRectMake(0, 0, 80, 80);
+        _slideLayer.cornerRadius = 40.0f;
+        _slideLayer.shadowColor = [UIColor grayColor].CGColor;
+        _slideLayer.shadowOpacity = 5.0f;
+        _slideLayer.shadowOffset = CGSizeMake(-10.0f, -10.0f);
+        isPanning = YES;
+        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
+    } else if (pan.state == UIGestureRecognizerStateChanged) {
+        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
+    } else {
+        [CATransaction setDisableActions:NO];
+        _slideLayer.opacity = 0.3;
+        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
+        _slideLayer.cornerRadius = 20.0f;
+        _slideLayer.shadowOpacity = 0.0f;
+        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
+        isPanning = NO;
+    }
+    
+
+
+}
 @end
