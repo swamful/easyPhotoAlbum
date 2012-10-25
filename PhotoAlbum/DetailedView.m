@@ -7,6 +7,8 @@
 //
 
 #import "DetailedView.h"
+#import "JSON.h"
+
 #define twoLeftIndex 0
 #define centerIndex 2
 #define leftIndex 1
@@ -57,6 +59,8 @@
         _layerList = [[NSMutableArray alloc] init];
         requestImageQueue = [[NSMutableArray alloc] init];
 
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
+        s = dispatch_semaphore_create(5);
         mainLayer = [CALayer layer];
         mainLayer.frame = self.frame;
         [self.layer addSublayer:mainLayer];
@@ -119,7 +123,7 @@
         
         alAssetManager = [ALAssetsManager getSharedInstance];
         alAssetManager.delegate = self;
-        isInit = YES;
+
         [self makeLayerList];
         
         UIView *topDimmedView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 60)];
@@ -144,17 +148,18 @@
     return self;
 }
 
+- (void) dealloc {
+    dispatch_release(s);
+}
+
 - (void) makeLayerList {
-    if ([requestImageQueue count] == 0) {
-        [self makeTextToCurrentView];
-        isInit = 0;
-        currentLayer = nil;
-        return;
+    for (NSNumber *index in requestImageQueue) {
+        currentLayer = [_layerList objectAtIndex:[index intValue]];
+        [self imageIndexWithDQueue:currentIndex + ([index intValue] -centerIndex) withLayer:currentLayer];
     }
-    NSInteger index = [[requestImageQueue objectAtIndex:0] intValue];
-    currentLayer = [_layerList objectAtIndex:index];
-    [self requestPhotoWithInt:currentIndex + (index -centerIndex)];
-    [requestImageQueue removeObjectAtIndex:0];
+    
+    currentLayer = nil;
+    return;
 }
 
 - (CALayer*) makeLayer {
@@ -187,7 +192,7 @@
     addressLayer.alignmentMode = kCAAlignmentCenter;
     addressLayer.name = @"addressLayer";
     addressLayer.font = (__bridge CFTypeRef)([UIFont fontWithName:@"GillSans-Italic" size:13].fontName);
-    addressLayer.fontSize = 15.0f;
+    addressLayer.fontSize = 11.0f;
 
     [boardLayer addSublayer:addressLayer];
     return boardLayer;
@@ -219,38 +224,47 @@
             layer.string = time;
         } else if ([layer.name isEqualToString:@"imageLayer"]) {
             layer.contents = (id) [model image].CGImage;
-        } else if ([layer.name isEqualToString:@"addressLayer"]) {
-            layer.string = [model address];
+        } if ([layer.name isEqualToString:@"addressLayer"]) {
+            if ([model hasGps]) {
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:model, @"model", layer,@"layer", nil];
+                [self performSelectorInBackground:@selector(makeAddress:) withObject:dic];                
+            }
         }
+    }
+    
+}
+
+- (void) makeAddress:(NSDictionary *) data{
+    @autoreleasepool {
+        CLLocationCoordinate2D gps = [[data objectForKey:@"model"] coordinate];
+        CATextLayer *layer = [data objectForKey:@"layer"];
+        NSString *json = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude, gps.longitude]]
+                                                  encoding:NSUTF8StringEncoding error:nil];
+        NSDictionary *dic = [json JSONValue];
+        //            NSLog(@"address : %@", [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]);
+        NSString *address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
+        address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
+        layer.string = address;
     }
 }
 
+
 - (void) drawImage:(PhotoModel *) model {
     [self drawLayerWithPhotoModel:model];
-    isMoving = NO;
 }
 
 - (void) didFinishLoadPhotoModel:(PhotoModel *)model {
     if (isTap) {
-        [self performSelectorOnMainThread:@selector(viewLargeImage:) withObject:model waitUntilDone:NO];
-    } else if (isInit) {
-        [self drawLayerWithPhotoModel:model];
-        [self makeLayerList];
-    } else {
-        [self performSelectorOnMainThread:@selector(drawImage:) withObject:model waitUntilDone:NO];
+        [self viewLargeImage:model];
     }
-}
-
-- (void) makeTextToCurrentView {
-//    NSLog(@"currentIndex : %d name : %@",currentIndex, [[_layerList objectAtIndex:centerIndex] name]);
-//    [_titleLabel setText:[[_layerList objectAtIndex:centerIndex] name]];
 }
 
 - (void) moveRight {
-    if (currentIndex == 0 || isMoving) {
+    
+    if (currentIndex == 0) {
         return;
     }
-    isMoving = YES;
+//    isMoving = YES;
     [[_layerList objectAtIndex:rightIndex] setPosition:twoRightPoint];
     [[_layerList objectAtIndex:centerIndex] setPosition:rightPoint];
     [[_layerList objectAtIndex:leftIndex] setPosition:centerPoint];
@@ -267,25 +281,80 @@
     [_layerList insertObject:currentLayer atIndex:twoLeftIndex];
     [mainLayer addSublayer:[_layerList objectAtIndex:twoLeftIndex]];
     currentIndex--;
-    [self makeTextToCurrentView];
 //    NSLog(@"right currentIndex: %d", currentIndex);
     if (currentIndex <= 1) {
-        isMoving = NO;
         currentLayer.position = CGPointMake(currentLayer.position.x, -400);
         return;
     }
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex-2]];
-    [[_layerList objectAtIndex:twoLeftIndex] setPosition:twoLeftPoint];
+    [[_layerList objectAtIndex:twoLeftIndex] setPosition:twoLeftPoint];    
+    [self imageIndexWithDQueue:(currentIndex -2) withLayer:currentLayer];
+}
 
+- (void) imageIndexWithDQueue:(NSInteger) index withLayer:(CALayer *)curLayer{
+    dqueue = dispatch_queue_create("getImage", NULL);
+    dispatch_async(dqueue, ^{
+        dispatch_semaphore_wait(s, DISPATCH_TIME_FOREVER);
+        {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSString *assetUrl = [self getAlassetUrlStringWithBtnIndex:index];
+                @autoreleasepool {
+                    [assetsLibrary assetForURL:[NSURL URLWithString:assetUrl] resultBlock:^(ALAsset *photo){
+                    if( photo ){
+                        NSDate *timeStamp = [[[[photo defaultRepresentation] metadata] objectForKey:@"{Exif}"] objectForKey:@"DateTimeOriginal"];
+                        if (!timeStamp) {
+                            timeStamp = [photo valueForProperty:ALAssetPropertyDate];
+                            timeStamp = [timeStamp dateByAddingTimeInterval:60*60*9];
+                        }
+                        CLLocation *location = [photo valueForProperty:ALAssetPropertyLocation];
+                        NSString *address = @"";
+                        if (location) {
+                            CLLocationCoordinate2D gps = [location coordinate];
+                            NSString *json = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude, gps.longitude]]
+                                                                  encoding:NSUTF8StringEncoding error:nil];
+                            NSDictionary *dic = [json JSONValue];
+                            address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
+                            address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
+                        }
+//                    [model setFullImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullResolutionImage]]];
+                    
+                        NSArray *timeList = [[timeStamp description] componentsSeparatedByString:@" "];
+                        NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
+                        NSString *date = [dateList componentsJoinedByString:@"."];
+                        curLayer.name = [[[photo defaultRepresentation] url] description];
+                        NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
+                        NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
+                        time = [time stringByReplacingOccurrencesOfString:@"-" withString:@"."];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            for (CATextLayer *layer in [curLayer sublayers]) {
+                                if ([layer.name isEqualToString:@"dateLayer"]) {
+                                    layer.string = time;
+                                } else if ([layer.name isEqualToString:@"imageLayer"]) {
+                                    layer.contents = (id) [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]].CGImage;
+                                } if ([layer.name isEqualToString:@"addressLayer"]) {
+                                    if (location) {
+                                        layer.string = address;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } failureBlock:^(NSError *error) {
+                    NSLog(@"error : %@", error);
+                }];
+                }
+            });
+        }
+        dispatch_semaphore_signal(s);
+    });
+    dispatch_release(dqueue);
 }
 
 
 
 - (void) moveLeft {
-    if (currentIndex == [_btnIndexList count] -1 || isMoving) {
+    if (currentIndex == [_btnIndexList count] -1) {
         return;
     }
-    isMoving = YES;
     [[_layerList objectAtIndex:leftIndex] setPosition:twoLeftPoint];
     [[_layerList objectAtIndex:centerIndex] setPosition:leftPoint];
     [[_layerList objectAtIndex:rightIndex] setPosition:centerPoint];
@@ -302,24 +371,20 @@
     currentLayer = [self makeLayer];
     [_layerList addObject:currentLayer];
     [mainLayer addSublayer:[_layerList objectAtIndex:twoRightIndex]];
-    currentIndex++;
-    [self makeTextToCurrentView];
-    
+    currentIndex++;    
     
     if (currentIndex >= [_btnIndexList count] -2) {
-        isMoving = NO;
+
         currentLayer.position = CGPointMake(currentLayer.position.x, -400);
         return;
     }
-    
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex+2]];
+//    NSLog(@"currentIndex:%d", currentIndex);
+    [self imageIndexWithDQueue:(currentIndex +2) withLayer:currentLayer];
     [[_layerList objectAtIndex:twoRightIndex] setPosition:twoRightPoint];    
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
-    if (isInit) {
-        return;
-    }
+
     [CATransaction setDisableActions:NO];
     [CATransaction setValue:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear] forKey:kCATransactionAnimationTimingFunction];
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
@@ -334,7 +399,7 @@
             layer.position = CGPointMake(layer.position.x + delta.x - forePoint.x, layer.position.y);
         }
     } else {
-        if ((fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 || fabs(velocity.x) > 500 ) && !isMoving) {
+        if ((fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 || fabs(velocity.x) > 500 )) {
             if ((delta.x > 0 || velocity.x > 0) && currentIndex !=0) {
                 CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
                 [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
@@ -367,9 +432,6 @@
 }
 
 - (void) handleTap:(UITapGestureRecognizer *)recognizer {
-    if (isInit) {
-        return;
-    }
     if (isTap) {
         if (imageView) {
             [imageView removeFromSuperview];
@@ -380,29 +442,8 @@
     }
     [self removeGestureRecognizer:panRecognizer];
     isTap = YES;
-    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
-    
-//    [mainLayer addSublayer:[_layerList objectAtIndex:centerIndex]];
-//    
-//    CALayer *aniLayer = nil;
-//    for (CATextLayer *layer in [[_layerList objectAtIndex:centerIndex] sublayers]) {
-//        if ([layer.name isEqualToString:@"imageLayer"]) {
-//            aniLayer = layer;
-//        }
-//    }
-//    
-//    [CATransaction begin];
-//    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-//    scaleAnimation.toValue = [NSNumber numberWithFloat:0.8f];
-//    scaleAnimation.duration = 0.1;
-//    scaleAnimation.removedOnCompletion = NO;
-//    scaleAnimation.fillMode = kCAFillModeForwards;
-//    [CATransaction setCompletionBlock:^(){
-//        [aniLayer removeAllAnimations];
-//    }];
-//    [aniLayer addAnimation:scaleAnimation forKey:@"scale"];
-//    [CATransaction commit];
-    
+    NSLog(@"currentIndex : %d", currentIndex);
+    [self requestPhotoWithInt:currentIndex];
 }
 
 @end

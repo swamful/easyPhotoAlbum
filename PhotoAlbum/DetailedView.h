@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "ALAssetsManager.h"
 #import "DetailImageView.h"
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <CoreLocation/CoreLocation.h>
+
 @interface DetailedView : UIView <ALAssetsMangerDelegate> {
     CALayer *currentLayer;
     NSInteger currentIndex;
@@ -28,13 +31,16 @@
     CGPoint twoLeftPoint;
     
     CGPoint forePoint;
-    BOOL isInit;
-    BOOL isMoving;
-    BOOL isDownloadFinish;
     BOOL isTap;
     
     UIPanGestureRecognizer* panRecognizer;
     NSMutableArray *requestImageQueue;
+    
+    UIImage *centerImage;
+    
+    ALAssetsLibrary *assetsLibrary;
+    dispatch_queue_t dqueue;
+    dispatch_semaphore_t s;
 }
 - (id)initWithFrame:(CGRect)frame withBtnIndexList:(NSArray*) btnIndexList currentIndex:(NSInteger) index;
 @end

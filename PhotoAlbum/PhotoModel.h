@@ -17,6 +17,9 @@
     UIImage *thumbImage;
     UIImage *image;
     UIImage *fullImage;
+    CGFloat longitude;
+    CGFloat latitude;
+    BOOL hasGps;
 }
 @property (nonatomic, strong) NSString *group;
 @property (nonatomic, strong) NSString *address;
@@ -26,6 +29,8 @@
 @property (nonatomic, strong) UIImage *thumbImage;
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic, strong) UIImage *fullImage;
-- (void) releaseImage;
+@property (nonatomic) CGFloat longitude;
+@property (nonatomic) CGFloat latitude;
+@property (nonatomic) BOOL hasGps;
 
 @end
