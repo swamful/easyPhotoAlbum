@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "ALAssetsManager.h"
+#import "DetailImageView.h"
 @interface DetailedView : UIView <ALAssetsMangerDelegate> {
     CALayer *currentLayer;
     NSInteger currentIndex;
     NSInteger makeIndex;
     CALayer *mainLayer;
+    
+    DetailImageView *imageView;
     
     NSMutableArray *_layerList;
     ALAssetsManager *alAssetManager;
@@ -28,7 +31,9 @@
     BOOL isInit;
     BOOL isMoving;
     BOOL isDownloadFinish;
+    BOOL isTap;
     
+    UIPanGestureRecognizer* panRecognizer;
     NSMutableArray *requestImageQueue;
 }
 - (id)initWithFrame:(CGRect)frame withBtnIndexList:(NSArray*) btnIndexList currentIndex:(NSInteger) index;

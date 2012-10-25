@@ -132,9 +132,12 @@
         bottomDimmedView.alpha = 0.5;
         [self addSubview:bottomDimmedView];
         
-        UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+        panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         panRecognizer.minimumNumberOfTouches = 1;
         [self addGestureRecognizer:panRecognizer];
+        
+        UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+        [self addGestureRecognizer:tapRecognizer];
         
     }
     [CATransaction setDisableActions:NO];
@@ -210,7 +213,7 @@
     NSArray *hourList = [[timeList objectAtIndex:1] componentsSeparatedByString:@":"];
     NSString *time = [NSString stringWithFormat:@"%@ %@:%@",date,[hourList objectAtIndex:0],[hourList objectAtIndex:1]];
     time = [time stringByReplacingOccurrencesOfString:@"-" withString:@"."];
-    currentLayer.name = time;
+    currentLayer.name = [model assetUrl];
     for (CATextLayer *layer in [currentLayer sublayers]) {
         if ([layer.name isEqualToString:@"dateLayer"]) {
             layer.string = time;
@@ -228,7 +231,9 @@
 }
 
 - (void) didFinishLoadPhotoModel:(PhotoModel *)model {
-    if (isInit) {
+    if (isTap) {
+        [self performSelectorOnMainThread:@selector(viewLargeImage:) withObject:model waitUntilDone:NO];
+    } else if (isInit) {
         [self drawLayerWithPhotoModel:model];
         [self makeLayerList];
     } else {
@@ -320,6 +325,7 @@
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
     CGPoint delta = [pan translationInView:pan.view];
     CGPoint velocity = [pan velocityInView:pan.view];
+
     if (pan.state == UIGestureRecognizerStateBegan) {
         forePoint = CGPointZero;
     } else if (pan.state == UIGestureRecognizerStateChanged) {
@@ -328,12 +334,12 @@
             layer.position = CGPointMake(layer.position.x + delta.x - forePoint.x, layer.position.y);
         }
     } else {
-        if (fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 && !isMoving) {
-            if (delta.x > 0 && currentIndex !=0) {
+        if ((fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 || fabs(velocity.x) > 500 ) && !isMoving) {
+            if ((delta.x > 0 || velocity.x > 0) && currentIndex !=0) {
                 CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
                 [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
                 [self moveRight];
-            } else if(delta.x < 0 && currentIndex != [_btnIndexList count] -1){
+            } else if((delta.x < 0 || velocity.x < 0) && currentIndex != [_btnIndexList count] -1){
                 CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x * 0.5);
                 [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
                 [self moveLeft];
@@ -349,7 +355,54 @@
         }
     }
     forePoint = delta;
+}
 
+- (void) viewLargeImage:(PhotoModel *) model {
+    imageView = [[DetailImageView alloc] initWithFrame:self.frame withImage:[model fullImage]];
+    [self addSubview:imageView];
+}
+- (void) initPan {
+    isTap = NO;
+    [self addGestureRecognizer:panRecognizer];
+}
+
+- (void) handleTap:(UITapGestureRecognizer *)recognizer {
+    if (isInit) {
+        return;
+    }
+    if (isTap) {
+        if (imageView) {
+            [imageView removeFromSuperview];
+            imageView =nil;
+            [self performSelector:@selector(initPan) withObject:nil afterDelay:0.1];
+        }
+        return;
+    }
+    [self removeGestureRecognizer:panRecognizer];
+    isTap = YES;
+    [self performSelectorInBackground:@selector(requestPhoto:) withObject:[NSNumber numberWithInt:currentIndex]];
+    
+//    [mainLayer addSublayer:[_layerList objectAtIndex:centerIndex]];
+//    
+//    CALayer *aniLayer = nil;
+//    for (CATextLayer *layer in [[_layerList objectAtIndex:centerIndex] sublayers]) {
+//        if ([layer.name isEqualToString:@"imageLayer"]) {
+//            aniLayer = layer;
+//        }
+//    }
+//    
+//    [CATransaction begin];
+//    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+//    scaleAnimation.toValue = [NSNumber numberWithFloat:0.8f];
+//    scaleAnimation.duration = 0.1;
+//    scaleAnimation.removedOnCompletion = NO;
+//    scaleAnimation.fillMode = kCAFillModeForwards;
+//    [CATransaction setCompletionBlock:^(){
+//        [aniLayer removeAllAnimations];
+//    }];
+//    [aniLayer addAnimation:scaleAnimation forKey:@"scale"];
+//    [CATransaction commit];
+    
 }
 
 @end

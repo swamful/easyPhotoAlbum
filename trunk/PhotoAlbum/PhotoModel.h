@@ -16,6 +16,7 @@
     NSString *assetUrl;
     UIImage *thumbImage;
     UIImage *image;
+    UIImage *fullImage;
 }
 @property (nonatomic, strong) NSString *group;
 @property (nonatomic, strong) NSString *address;
@@ -24,7 +25,7 @@
 @property (nonatomic, strong) NSString *assetUrl;
 @property (nonatomic, strong) UIImage *thumbImage;
 @property (nonatomic, strong) UIImage *image;
-
+@property (nonatomic, strong) UIImage *fullImage;
 - (void) releaseImage;
 
 @end
