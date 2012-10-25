@@ -10,7 +10,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <CoreLocation/CoreLocation.h>
 #import <ImageIO/ImageIO.h>
-#import "JSON.h"
+
 @implementation ALAssetsManager
 @synthesize delegate = _delegate;
 static ALAssetsManager *instance= nil;
@@ -68,7 +68,7 @@ void(^loadPhotosBlock)(ALAsset *, NSUInteger, BOOL *) = ^(ALAsset * photo, NSUIn
                 _tempAddList = [[NSMutableArray alloc] init];
             }
         }
-        
+
         PhotoModel *model = [[PhotoModel alloc] init];
         [model setTime:[photo valueForProperty:ALAssetPropertyDate]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
@@ -120,6 +120,7 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
 //        NSLog(@"location :%@", [photo valueForProperty:ALAssetPropertyLocation]);
         CLLocation *location = [photo valueForProperty:ALAssetPropertyLocation];
         PhotoModel *model = [[PhotoModel alloc] init];
+        [model setHasGps:NO];
         NSDate *timeStamp = [[[[photo defaultRepresentation] metadata] objectForKey:@"{Exif}"] objectForKey:@"DateTimeOriginal"];
 //        NSLog(@"timeStamp : %@", timeStamp);
         if (!timeStamp) {
@@ -128,16 +129,12 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
         }
         if (location) {
             CLLocationCoordinate2D gps = [location coordinate];
-            NSString *json = [NSString stringWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://maps.google.co.kr/maps/geo?q=%f,%f", gps.latitude,gps.longitude]]
-                                                         encoding:NSUTF8StringEncoding error:nil];
-//            NSLog(@"json : %@", json);
-            NSDictionary *dic = [json JSONValue];
-//            NSLog(@"address : %@", [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"]);
-            NSString *address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
-            address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
-            [model setAddress:address];
-        } 
+            [model setHasGps:YES];
+            [model setLongitude:gps.longitude];
+            [model setLatitude:gps.latitude];
+        }
 //        NSLog(@"timeStamp : %@", timeStamp);
+//        NSLog(@"orientation : %d", [[photo defaultRepresentation] orientation]);
         [model setTime:timeStamp];
         [model setFullImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullResolutionImage]]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];

@@ -9,12 +9,8 @@
 #import "PhotoModel.h"
 
 @implementation PhotoModel
-@synthesize group, address;
+@synthesize group, address, longitude, latitude;
 @synthesize time, assetUrl, thumbImage;
-@synthesize device, image, fullImage;
-
-- (void) releaseImage {
-    self.thumbImage = nil;
-}
+@synthesize device, image, fullImage, hasGps;
 
 @end
