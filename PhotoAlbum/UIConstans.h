@@ -11,4 +11,5 @@ typedef enum {
     TOTALVIEW = 0,
     INDEXVIEW,
     DETAILEDVIEW,
+    SLIDESHOWVIEW,
 } VIEWTYPE;

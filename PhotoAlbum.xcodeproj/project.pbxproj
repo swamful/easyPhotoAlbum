@@ -34,6 +34,7 @@
 		6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
 		6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */; };
 		6C9CADAD16340B66004C4974 /* IndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADAC16340B66004C4974 /* IndexView.m */; };
+		A82BD980163A4B7600469697 /* SlideShowView.m in Sources */ = {isa = PBXBuildFile; fileRef = A82BD97F163A4B7600469697 /* SlideShowView.m */; };
 		A84DCACB16391FD600479A5F /* DetailImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A84DCACA16391FD600479A5F /* DetailImageView.m */; };
 		A884CA891635214100AFB751 /* DetailedView.m in Sources */ = {isa = PBXBuildFile; fileRef = A884CA881635214100AFB751 /* DetailedView.m */; };
 		A884CA8A163529AC00AFB751 /* DetailedView.m in Sources */ = {isa = PBXBuildFile; fileRef = A884CA881635214100AFB751 /* DetailedView.m */; };
@@ -100,6 +101,8 @@
 		6C9CADAB16340B66004C4974 /* IndexView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexView.h; sourceTree = "<group>"; };
 		6C9CADAC16340B66004C4974 /* IndexView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexView.m; sourceTree = "<group>"; };
 		6C9CADAE163438BD004C4974 /* UIConstans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIConstans.h; sourceTree = "<group>"; };
+		A82BD97E163A4B7600469697 /* SlideShowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlideShowView.h; sourceTree = "<group>"; };
+		A82BD97F163A4B7600469697 /* SlideShowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SlideShowView.m; sourceTree = "<group>"; };
 		A84DCAC916391FD600479A5F /* DetailImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailImageView.h; sourceTree = "<group>"; };
 		A84DCACA16391FD600479A5F /* DetailImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailImageView.m; sourceTree = "<group>"; };
 		A884CA871635214100AFB751 /* DetailedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailedView.h; sourceTree = "<group>"; };
@@ -209,6 +212,8 @@
 				A884CA881635214100AFB751 /* DetailedView.m */,
 				A84DCAC916391FD600479A5F /* DetailImageView.h */,
 				A84DCACA16391FD600479A5F /* DetailImageView.m */,
+				A82BD97E163A4B7600469697 /* SlideShowView.h */,
+				A82BD97F163A4B7600469697 /* SlideShowView.m */,
 			);
 			path = PhotoAlbum;
 			sourceTree = "<group>";
@@ -419,6 +424,7 @@
 				6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */,
 				6C9CADAD16340B66004C4974 /* IndexView.m in Sources */,
 				A84DCACB16391FD600479A5F /* DetailImageView.m in Sources */,
+				A82BD980163A4B7600469697 /* SlideShowView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

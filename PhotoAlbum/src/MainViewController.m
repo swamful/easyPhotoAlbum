@@ -20,6 +20,13 @@
     [pinchRecognizer setDelegate:self];
     [self.view addGestureRecognizer:pinchRecognizer];
 
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapRecognizer.delegate = self;
+    tapRecognizer.numberOfTapsRequired = 2;
+    tapRecognizer.numberOfTouchesRequired = 2;
+    [self.view addGestureRecognizer:tapRecognizer];
+    
+    
     showingViewType = INDEXVIEW;
 
     alassetManager = [ALAssetsManager getSharedInstance];
@@ -28,8 +35,18 @@
     [alassetManager getPhotoLibrary];
 }
 
+- (void) handleTap:(UITapGestureRecognizer *) recognizer {
+    if (showingViewType == SLIDESHOWVIEW) {
+        return;
+    }
+    showingViewType = SLIDESHOWVIEW;
+    [self changeShowingView];
+}
 
 - (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
+    if (showingViewType == SLIDESHOWVIEW) {
+        [slideShowView showInvalidate];
+    }
     if (recognizer.scale < 1) {
         if (showingViewType == INDEXVIEW) {
             return;
@@ -106,7 +123,12 @@
     for (UIView *view in [self.view subviews]) {
         [view removeFromSuperview];
     }
+    galleryView = nil;
+    indexView = nil;
+    detailedView = nil;
+    slideShowView = nil;
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
     switch (showingViewType) {
         case TOTALVIEW:
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
@@ -121,7 +143,12 @@
             detailedView = [[DetailedView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withBtnIndexList:_btnIndexList currentIndex:selectedIndex];
             [self.view addSubview:detailedView];
             break;
-
+        case SLIDESHOWVIEW:
+            [UIApplication sharedApplication].idleTimerDisabled = YES; 
+            [[UIApplication sharedApplication] setStatusBarHidden:YES];
+            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_btnIndexList];
+            [self.view addSubview:slideShowView];
+            break;
         default:
             break;
     }

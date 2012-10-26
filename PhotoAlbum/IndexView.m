@@ -54,6 +54,10 @@
     return self;
 }
 
+- (void) dealloc {
+    NSLog(@"index view dealloc");
+}
+
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     isPanning = NO;
 }
