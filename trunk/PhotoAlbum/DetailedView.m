@@ -149,6 +149,7 @@
 }
 
 - (void) dealloc {
+    NSLog(@"detail view dealloc");
     dispatch_release(s);
 }
 
@@ -272,21 +273,19 @@
     if (currentIndex != 1) {
         [[_layerList objectAtIndex:twoLeftIndex] setPosition:leftPoint];
     }
-    
-    CALayer *twoRightLayer = [_layerList objectAtIndex:twoRightIndex];
-    [twoRightLayer removeFromSuperlayer];
-    [_layerList removeObject:twoRightLayer];
-    
-    currentLayer = [self makeLayer];
+    [CATransaction setDisableActions:YES];
+    currentLayer = [_layerList objectAtIndex:twoRightIndex];
+    currentLayer.opacity = 0.0f;
+    [_layerList removeObject:currentLayer];
     [_layerList insertObject:currentLayer atIndex:twoLeftIndex];
-    [mainLayer addSublayer:[_layerList objectAtIndex:twoLeftIndex]];
+    
     currentIndex--;
 //    NSLog(@"right currentIndex: %d", currentIndex);
     if (currentIndex <= 1) {
         currentLayer.position = CGPointMake(currentLayer.position.x, -400);
         return;
     }
-    [[_layerList objectAtIndex:twoLeftIndex] setPosition:twoLeftPoint];    
+    [currentLayer setPosition:twoLeftPoint];
     [self imageIndexWithDQueue:(currentIndex -2) withLayer:currentLayer];
 }
 
@@ -300,6 +299,7 @@
                 @autoreleasepool {
                     [assetsLibrary assetForURL:[NSURL URLWithString:assetUrl] resultBlock:^(ALAsset *photo){
                     if( photo ){
+                        curLayer.opacity = 1.0f;
                         NSDate *timeStamp = [[[[photo defaultRepresentation] metadata] objectForKey:@"{Exif}"] objectForKey:@"DateTimeOriginal"];
                         if (!timeStamp) {
                             timeStamp = [photo valueForProperty:ALAssetPropertyDate];
@@ -337,6 +337,7 @@
                                 }
                             }
                         });
+                        photo = nil;
                     }
                 } failureBlock:^(NSError *error) {
                     NSLog(@"error : %@", error);
@@ -362,15 +363,13 @@
     if (currentIndex != [_btnIndexList count] -2) {
         [[_layerList objectAtIndex:twoRightIndex] setPosition:rightPoint];
     }
-    
-    CALayer *towLeftLayer = [_layerList objectAtIndex:twoLeftIndex];
-    [towLeftLayer removeFromSuperlayer];
-    [_layerList removeObject:towLeftLayer];
-    
-    
-    currentLayer = [self makeLayer];
+    [CATransaction setDisableActions:YES];
+    currentLayer = [_layerList objectAtIndex:twoLeftIndex];
+    currentLayer.opacity = 0.0f;
+
+    [_layerList removeObject:currentLayer];
     [_layerList addObject:currentLayer];
-    [mainLayer addSublayer:[_layerList objectAtIndex:twoRightIndex]];
+
     currentIndex++;    
     
     if (currentIndex >= [_btnIndexList count] -2) {
@@ -378,9 +377,9 @@
         currentLayer.position = CGPointMake(currentLayer.position.x, -400);
         return;
     }
-//    NSLog(@"currentIndex:%d", currentIndex);
+//    NSLog(@"left currentIndex:%d", currentIndex);
     [self imageIndexWithDQueue:(currentIndex +2) withLayer:currentLayer];
-    [[_layerList objectAtIndex:twoRightIndex] setPosition:twoRightPoint];    
+    [currentLayer setPosition:twoRightPoint];    
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
@@ -394,19 +393,21 @@
     if (pan.state == UIGestureRecognizerStateBegan) {
         forePoint = CGPointZero;
     } else if (pan.state == UIGestureRecognizerStateChanged) {
-        [CATransaction setValue:[NSNumber numberWithFloat:0.01] forKey:kCATransactionAnimationDuration];
+        [CATransaction setDisableActions:YES];
         for (CALayer *layer in _layerList) {
             layer.position = CGPointMake(layer.position.x + delta.x - forePoint.x, layer.position.y);
         }
     } else {
+
         if ((fabs(delta.x) > [[UIScreen mainScreen] applicationFrame].size.width * 0.2 || fabs(velocity.x) > 500 )) {
+//            [CATransaction setDisableActions:YES];
             if ((delta.x > 0 || velocity.x > 0) && currentIndex !=0) {
-                CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x * 0.5);
-                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
+                CGFloat duration = ([[UIScreen mainScreen] bounds].size.width - [[_layerList objectAtIndex:leftIndex] position].x) / fabs(velocity.x);
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.25)] forKey:kCATransactionAnimationDuration];
                 [self moveRight];
             } else if((delta.x < 0 || velocity.x < 0) && currentIndex != [_btnIndexList count] -1){
-                CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x * 0.5);
-                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.05)] forKey:kCATransactionAnimationDuration];
+                CGFloat duration = ([[_layerList objectAtIndex:rightIndex] position].x ) / fabs(velocity.x);
+                [CATransaction setValue:[NSNumber numberWithFloat:MIN(duration, 0.25)] forKey:kCATransactionAnimationDuration];
                 [self moveLeft];
             } else {
                 [[_layerList objectAtIndex:leftIndex] setPosition:leftPoint];

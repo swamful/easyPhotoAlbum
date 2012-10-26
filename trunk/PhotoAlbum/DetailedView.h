@@ -32,6 +32,7 @@
     
     CGPoint forePoint;
     BOOL isTap;
+    BOOL isMoving;
     
     UIPanGestureRecognizer* panRecognizer;
     NSMutableArray *requestImageQueue;

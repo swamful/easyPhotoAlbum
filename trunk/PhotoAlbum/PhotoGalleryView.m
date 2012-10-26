@@ -132,6 +132,9 @@
     [self makeDimmedLayer];
 }
 
+- (void) dealloc {
+    NSLog(@"gallery view dealloc");
+}
 
 - (BOOL) isTopLimit {
     CALayer *firstLayer = [_mainBoardList objectAtIndex:0];

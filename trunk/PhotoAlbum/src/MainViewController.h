@@ -12,11 +12,13 @@
 #import "IndexView.h"
 #import "UIConstans.h"
 #import "DetailedView.h"
+#import "SlideShowView.h"
 @interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
     DetailedView *detailedView;
     IndexView *indexView;
+    SlideShowView *slideShowView;
     NSMutableArray *_allLayerList;
     NSMutableArray *_btnIndexList;
     VIEWTYPE showingViewType;
