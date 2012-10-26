@@ -27,18 +27,14 @@
 //        [self addSubview:dimmedView];
         
         NSLog(@"dimmedLayer frame : %@", NSStringFromCGRect(dimmedView.frame));
-
         
-        for (int i = 0 ; i < 20 ; i++) {
+        for (int i = 0 ; i < 15 ; i++) {
             CALayer *selectedLayer = [[list objectAtIndex:i] layer];
             CALayer *showLayer = [CALayer layer];
             showLayer.name = selectedLayer.name;
             showLayer.transform = [self getTransForm3DIdentity];
             showLayer.bounds = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-//            showLayer.transform = CATransform3DTranslate(showLayer.transform, 0, 0, i * zGap);
             showLayer.anchorPointZ = 1000.0f;
-//            showLayer.position = CGPointMake(-self.center.x + (arc4random() % ((NSInteger)self.frame.size.width * 2)) , -self.center.y + (arc4random() % ((NSInteger)self.frame.size.height * 2)));
-//            showLayer.position = CGPointMake((arc4random() % ((NSInteger)self.frame.size.width)) , (arc4random() % ((NSInteger)self.frame.size.height)));
             [self.layer addSublayer:showLayer];
             [_showLayerList addObject:showLayer];
             if (i < 8) {
@@ -65,12 +61,15 @@
     if (currentIndex == 0) {
         for (int i = 0 ; i < [_showLayerList count] ; i++) {
             CALayer *showLayer = [_showLayerList objectAtIndex:i];
+            if (i == 0 && !showLayer.contents) {
+                [self imageIndexWithDQueueLayer:showLayer];
+            }
             showLayer.transform = CATransform3DTranslate(showLayer.transform, 0, 0, - i * zGap);
             showLayer.position = CGPointMake((arc4random() % ((NSInteger)self.frame.size.width)) , (arc4random() % ((NSInteger)self.frame.size.height)));
         }
     }
     
-    NSLog(@"curIndex : %d", currentIndex);
+//    NSLog(@"curIndex : %d", currentIndex);
     CALayer *curLayer = [_showLayerList objectAtIndex:currentIndex];
     curLayer.opacity = 1.0f;
     CGFloat deltax = self.center.x - curLayer.position.x;
@@ -103,8 +102,6 @@
 - (void) imageIndexWithDQueueLayer:(CALayer *)layer {
     dqueue = dispatch_queue_create("getImage", NULL);
     dispatch_async(dqueue, ^{
-
-
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSString *assetUrl = layer.name;
                 @autoreleasepool {
@@ -112,7 +109,7 @@
                         if( photo ){
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 layer.contents = (id) [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]].CGImage;
-                                NSLog(@"layer :%@", layer.name);
+//                                NSLog(@"layer :%@", layer.name);
                             });
                             photo = nil;
                         }

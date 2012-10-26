@@ -95,9 +95,9 @@
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
 //            btn.frame = CGRectMake(lastWidth + thumbMargin + (thumbSize + thumbMargin) * (j/7), 50 + thumbMargin + (thumbSize + thumbMargin) * (j%7), thumbSize, thumbSize);
             btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/7), thumbMargin + (thumbSize + thumbMargin) * (j%7), thumbSize, thumbSize);
-            btn.layer.borderColor = [UIColor grayColor].CGColor;
-            btn.layer.borderWidth = 0.5f;
-
+            btn.layer.borderColor = [UIColor whiteColor].CGColor;
+            btn.layer.borderWidth = 2.0f;
+            btn.layer.shouldRasterize = YES;
 //            [layer setShadowPath:[UIBezierPath bezierPathWithRect:layer.bounds].CGPath];
 //            layer.shadowColor = [UIColor whiteColor].CGColor;
 //            layer.shadowOpacity = 2.0f;
