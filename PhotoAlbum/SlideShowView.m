@@ -67,10 +67,12 @@
 
 - (void) beginShow {
     if (currentIndex == 0) {
-        for (int i = 1 ; i < [_showLayerList count] ; i++) {
+        for (int i = 0 ; i < [_showLayerList count] ; i++) {
             CALayer *showLayer = [_showLayerList objectAtIndex:i];
             showLayer.transform = CATransform3DTranslate(showLayer.transform, 0, 0, - i * zGap);
-            showLayer.position = CGPointMake((arc4random() % ((NSInteger)self.frame.size.width)) , (arc4random() % ((NSInteger)self.frame.size.height)));
+            if (i != 0) {
+                showLayer.position = CGPointMake((arc4random() % ((NSInteger)self.frame.size.width)) , (arc4random() % ((NSInteger)self.frame.size.height)));
+            }
         }
     }
     
