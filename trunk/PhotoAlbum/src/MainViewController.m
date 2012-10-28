@@ -20,12 +20,6 @@
     [pinchRecognizer setDelegate:self];
     [self.view addGestureRecognizer:pinchRecognizer];
 
-    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    tapRecognizer.delegate = self;
-    tapRecognizer.numberOfTapsRequired = 2;
-    tapRecognizer.numberOfTouchesRequired = 2;
-    [self.view addGestureRecognizer:tapRecognizer];
-    
     
     showingViewType = INDEXVIEW;
 
@@ -35,12 +29,30 @@
     [alassetManager getPhotoLibrary];
 }
 
-- (void) handleTap:(UITapGestureRecognizer *) recognizer {
+- (void) changeToSlideView {
     if (showingViewType == SLIDESHOWVIEW) {
         return;
     }
     showingViewType = SLIDESHOWVIEW;
-    [self changeShowingView];
+    [CATransaction begin];
+    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    opacityAnimation.toValue = [NSNumber numberWithFloat:0.0f];
+    opacityAnimation.duration = 0.5;
+    opacityAnimation.fillMode = kCAFillModeForwards;
+    opacityAnimation.removedOnCompletion = NO;
+    [CATransaction setCompletionBlock:^() {
+        
+        [self changeShowingView];
+    }];
+    [self.view.layer addAnimation:opacityAnimation forKey:@"opacity"];
+    [CATransaction commit];
+    
+}
+
+- (void) handleTap:(UITapGestureRecognizer *) recognizer {
+
+    
+
 }
 
 - (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
@@ -123,7 +135,9 @@
     for (UIView *view in [self.view subviews]) {
         [view removeFromSuperview];
     }
+    [self.view.layer removeAllAnimations];
     galleryView = nil;
+    indexView.delegate = nil;
     indexView = nil;
     detailedView = nil;
     slideShowView = nil;
@@ -137,6 +151,7 @@
             break;
         case INDEXVIEW:
             indexView = [[IndexView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withAllLayerList:_allLayerList];
+            indexView.delegate = self;
             [self.view addSubview:indexView];
             break;
         case DETAILEDVIEW:

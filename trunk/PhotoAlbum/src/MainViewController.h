@@ -13,7 +13,7 @@
 #import "UIConstans.h"
 #import "DetailedView.h"
 #import "SlideShowView.h"
-@interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate>{
+@interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate, IndexViewDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
     DetailedView *detailedView;

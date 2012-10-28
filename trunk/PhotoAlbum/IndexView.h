@@ -7,8 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+@protocol IndexViewDelegate;
 
 @interface IndexView : UIView <UIScrollViewDelegate> {
+    id<IndexViewDelegate> _delegate;
     NSMutableArray *_mainBoardList;
     CGFloat m34;
     
@@ -19,6 +21,10 @@
     CALayer *_slideLayer;
     BOOL isPanning;
 }
-
+@property (nonatomic) id<IndexViewDelegate> delegate;
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
+@end
+@protocol IndexViewDelegate <NSObject>
+- (void) changeToSlideView;
+- (void) changeToRandomView;
 @end
