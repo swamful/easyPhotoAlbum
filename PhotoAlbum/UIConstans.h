@@ -13,3 +13,5 @@ typedef enum {
     DETAILEDVIEW,
     SLIDESHOWVIEW,
 } VIEWTYPE;
+
+#define kSlideShowList @"kSlideShowList"

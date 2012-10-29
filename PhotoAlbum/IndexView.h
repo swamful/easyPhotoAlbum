@@ -20,11 +20,14 @@
     
     CALayer *_slideLayer;
     BOOL isPanning;
+    BOOL isSlideRegisterMode;
 }
 @property (nonatomic) id<IndexViewDelegate> delegate;
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
+- (void)changeSlideSetEnable:(BOOL) enable;
 @end
 @protocol IndexViewDelegate <NSObject>
 - (void) changeToSlideView;
 - (void) changeToRandomView;
+- (void) changeSlideSelectMode;
 @end

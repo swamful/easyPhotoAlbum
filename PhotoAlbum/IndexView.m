@@ -7,7 +7,7 @@
 //
 
 #import "IndexView.h"
-
+#import <AudioToolbox/AudioToolbox.h>
 @implementation IndexView
 @synthesize delegate = _delegate;
 - (CATransform3D) getTransForm3DIdentity {
@@ -53,6 +53,14 @@
         tapRecognizer.numberOfTapsRequired = 2;
         [_bottomView addGestureRecognizer:tapRecognizer];
         [CATransaction setDisableActions:NO];
+        
+        UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLong:)];
+        longPressRecognizer.minimumPressDuration = 0.3;
+        [_bottomView addGestureRecognizer:longPressRecognizer];
+        
+        UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
+        [_bottomView addGestureRecognizer:pinchRecognizer];
+        
         isPanning = NO;
     }
     return self;
@@ -75,15 +83,15 @@
 
 - (void) initLayerwithImageDataList:(NSArray *)allLayerList {
 
-    NSInteger thumbSize = 40;
-    NSInteger thumbMargin = 2;
+    NSInteger thumbSize = 45;
+    NSInteger thumbMargin = 3;
 
     NSLog(@"list count : %d", [allLayerList count]);
     CGFloat lastWidth = 0;
  
     for (NSDictionary *dic in allLayerList) {
         NSString *key = [[dic allKeys] objectAtIndex:0];
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(lastWidth, 50, (([[dic objectForKey:key] count] -1) / 8) * (thumbMargin + thumbSize + 5) + (thumbMargin + thumbSize + 5), _mainScroll.frame.size.height - 50)];
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(lastWidth, 50, (([[dic objectForKey:key] count] -1) / 6) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) , _mainScroll.frame.size.height - 50)];
         view.backgroundColor = [UIColor blackColor];
         [_mainScroll addSubview:view];
         CATextLayer *textLayer = [CATextLayer layer];
@@ -97,15 +105,13 @@
         for (int j = 0 ; j < [[dic objectForKey:key] count] ; j ++) {
 
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
-            btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/7), thumbMargin + (thumbSize + thumbMargin) * (j%7), thumbSize, thumbSize);
-            btn.layer.borderColor = [UIColor whiteColor].CGColor;
-            btn.layer.borderWidth = 2.0f;
+            btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/6), thumbMargin + (thumbSize + thumbMargin) * (j%6), thumbSize, thumbSize);
             btn.layer.shouldRasterize = YES;
             [view addSubview:btn];
 
         }
         
-        lastWidth = (([[dic objectForKey:key] count] -1) / 7) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) + lastWidth;
+        lastWidth = (([[dic objectForKey:key] count] -1) / 6) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) + lastWidth;
         _mainScroll.contentSize = CGSizeMake(lastWidth + thumbMargin, _mainScroll.frame.size.height);
     }
     CALayer *lineLayer = [CALayer layer];
@@ -116,6 +122,9 @@
 }
 
 - (void) handleTap:(UITapGestureRecognizer *) recognizer {
+    if (isSlideRegisterMode) {
+        return;
+    }
     if (_delegate && [_delegate respondsToSelector:@selector(changeToSlideView)]) {
         [_delegate changeToSlideView];
     }
@@ -176,4 +185,39 @@
         isPanning = NO;
     }
 }
+
+- (void) changeSlideSetEnable:(BOOL) enable {
+    if (enable) {
+        isSlideRegisterMode = YES;
+        _mainScroll.backgroundColor = [UIColor grayColor];
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+    } else {
+        isSlideRegisterMode = NO;
+        _mainScroll.backgroundColor = [UIColor blackColor];
+    }
+}
+
+- (void) handleLong:(UILongPressGestureRecognizer *) recognizer {
+    if (isSlideRegisterMode) {
+        return;
+    }
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        [self changeSlideSetEnable:YES];
+        if (_delegate && [_delegate respondsToSelector:@selector(changeSlideSelectMode)]) {
+            [_delegate changeSlideSelectMode];
+        }        
+    }
+}
+
+- (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if (recognizer.scale > 1.0f) {
+            if (_delegate && [_delegate respondsToSelector:@selector(changeToRandomView)]) {
+                [_delegate changeToRandomView];
+            }
+        }
+    }
+}
+
+
 @end

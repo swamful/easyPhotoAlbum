@@ -17,7 +17,6 @@
     MainViewController *mvc = [[MainViewController alloc] initWithNibName:nil bundle:nil];
     UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:mvc];
     [nc setNavigationBarHidden:YES];
-
     self.window.rootViewController = nc;
 
     [self.window makeKeyAndVisible];

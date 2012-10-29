@@ -22,7 +22,6 @@
 
 - (id)initWithFrame:(CGRect)frame withDataList:(NSArray *) dataList withTotalCount:(NSInteger) totalCount
 {
-    NSLog(@"self frame : %@", NSStringFromCGRect(frame));
     self = [super initWithFrame:frame];
 
     if (self) {
@@ -34,6 +33,10 @@
         longPressRecognizer.minimumPressDuration = 0.3;
         [self addGestureRecognizer:longPressRecognizer];
         
+        UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
+        [pinchRecognizer setDelegate:self];
+        [self addGestureRecognizer:pinchRecognizer];
+        
         _mainBoardList = [[NSMutableArray alloc] init];
 
         columnCount = 36;
@@ -42,6 +45,27 @@
         [self showTotalView:dataList withCount:totalCount];
     }
     return self;
+}
+
+- (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
+    float rScale = currentScale * recognizer.scale;
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        currentScale = [(NSNumber *)[self.layer valueForKeyPath:@"transform.scale.x"] floatValue];
+        if (currentScale == 1 && recognizer.scale < 1) {
+            if (_delegate && [_delegate respondsToSelector:@selector(closeGalleryView)]) {
+                [_delegate closeGalleryView];
+            }
+        }
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+        if (rScale >= 4 && recognizer.scale > 1) {
+            return;
+        }
+        self.layer.transform = CATransform3DMakeScale(rScale, rScale, rScale);
+    } else {
+        if (rScale < 1) {
+            self.layer.transform = CATransform3DMakeScale(1, 1, 1);
+        }
+    }
 }
 
 - (void) makeTotalMainBoardView:(NSInteger) heightCount {
@@ -119,9 +143,7 @@
         btn.frame = CGRectMake(thumbMargin, (i / columnCount) * (thumbSize + thumbMargin), thumbSize, thumbSize);
 
         CALayer *layer = [btn layer];
-        layer.borderColor = [UIColor whiteColor].CGColor;
-        layer.borderWidth = 1.5f;
-        layer.cornerRadius = 0.0f;
+        layer.shouldRasterize = NO;
         [view addSubview:btn];
 
         _lastLayer = layer;

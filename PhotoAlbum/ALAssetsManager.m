@@ -68,7 +68,7 @@ void(^loadPhotosBlock)(ALAsset *, NSUInteger, BOOL *) = ^(ALAsset * photo, NSUIn
                 _tempAddList = [[NSMutableArray alloc] init];
             }
         }
-
+        
         PhotoModel *model = [[PhotoModel alloc] init];
         [model setTime:[photo valueForProperty:ALAssetPropertyDate]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];

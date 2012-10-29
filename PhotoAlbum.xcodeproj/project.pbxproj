@@ -27,6 +27,7 @@
 		6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
 		6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */; };
 		6C9CADAD16340B66004C4974 /* IndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADAC16340B66004C4974 /* IndexView.m */; };
+		A815F667163E4DC600BE1AB9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A815F666163E4DC600BE1AB9 /* AudioToolbox.framework */; };
 		A82BD980163A4B7600469697 /* SlideShowView.m in Sources */ = {isa = PBXBuildFile; fileRef = A82BD97F163A4B7600469697 /* SlideShowView.m */; };
 		A84DCACB16391FD600479A5F /* DetailImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A84DCACA16391FD600479A5F /* DetailImageView.m */; };
 		A884CA891635214100AFB751 /* DetailedView.m in Sources */ = {isa = PBXBuildFile; fileRef = A884CA881635214100AFB751 /* DetailedView.m */; };
@@ -87,6 +88,7 @@
 		6C9CADAB16340B66004C4974 /* IndexView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexView.h; sourceTree = "<group>"; };
 		6C9CADAC16340B66004C4974 /* IndexView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexView.m; sourceTree = "<group>"; };
 		6C9CADAE163438BD004C4974 /* UIConstans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIConstans.h; sourceTree = "<group>"; };
+		A815F666163E4DC600BE1AB9 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A82BD97E163A4B7600469697 /* SlideShowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlideShowView.h; sourceTree = "<group>"; };
 		A82BD97F163A4B7600469697 /* SlideShowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SlideShowView.m; sourceTree = "<group>"; };
 		A84DCAC916391FD600479A5F /* DetailImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailImageView.h; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A815F667163E4DC600BE1AB9 /* AudioToolbox.framework in Frameworks */,
 				A884CAD31636734500AFB751 /* CoreLocation.framework in Frameworks */,
 				A8DEC730162BD1220096B933 /* QuartzCore.framework in Frameworks */,
 				A8DEC726162BA8770096B933 /* AssetsLibrary.framework in Frameworks */,
@@ -165,6 +168,7 @@
 		6C97325D1629992300CD5D18 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A815F666163E4DC600BE1AB9 /* AudioToolbox.framework */,
 				A884CAD21636734500AFB751 /* CoreLocation.framework */,
 				A8DEC72F162BD1220096B933 /* QuartzCore.framework */,
 				A8DEC725162BA8770096B933 /* AssetsLibrary.framework */,
