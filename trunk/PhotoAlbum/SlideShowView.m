@@ -22,7 +22,7 @@
         assetsLibrary = [[ALAssetsLibrary alloc] init];
         currentIndex = 0;
         [CATransaction setDisableActions:YES];
-        for (int i = 0 ; i < 15 ; i++) {
+        for (int i = 0 ; i < [list count] ; i++) {
             CALayer *selectedLayer = [[list objectAtIndex:i] layer];
             CALayer *showLayer = [CALayer layer];
             showLayer.name = selectedLayer.name;

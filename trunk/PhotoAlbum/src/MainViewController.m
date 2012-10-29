@@ -16,17 +16,26 @@
     [super viewDidLoad];
     _allLayerList = [[NSMutableArray alloc] init];
     _btnIndexList = [[NSMutableArray alloc] init];
+    _slideShowIndexList = [[NSMutableArray alloc] init];
+    
     UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
     [pinchRecognizer setDelegate:self];
     [self.view addGestureRecognizer:pinchRecognizer];
 
-    
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapRecognizer.numberOfTapsRequired = 1;
+    [self.view addGestureRecognizer:tapRecognizer];
+
     showingViewType = INDEXVIEW;
 
     alassetManager = [ALAssetsManager getSharedInstance];
     alassetManager.delegate = self;
 
     [alassetManager getPhotoLibrary];
+}
+
+- (void) closeGalleryView {
+    [self changeToIndexView];
 }
 
 - (void) changeToSlideView {
@@ -50,79 +59,87 @@
 }
 
 - (void) handleTap:(UITapGestureRecognizer *) recognizer {
-
-    
-
+    if (indexView && isSlideRegisterMode) {
+        [indexView changeSlideSetEnable:NO];
+    }
+    isSlideRegisterMode = NO;
 }
+
+- (void) changeToIndexView {
+    if (showingViewType == INDEXVIEW) {
+        return;
+    }
+    showingViewType = INDEXVIEW;
+    [CATransaction begin];
+    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    opacityAnimation.toValue = [NSNumber numberWithFloat:0.0f];
+    opacityAnimation.duration = 0.5;
+    opacityAnimation.fillMode = kCAFillModeForwards;
+    opacityAnimation.removedOnCompletion = NO;
+    
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
+    scaleAnimation.toValue = [NSNumber numberWithFloat:0.0f];
+    scaleAnimation.duration = 0.5;
+    scaleAnimation.fillMode = kCAFillModeForwards;
+    scaleAnimation.removedOnCompletion = NO;
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.duration = 0.49;
+    animationGroup.removedOnCompletion = NO;
+    animationGroup.fillMode = kCAFillModeForwards;
+    animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    [animationGroup setAnimations:[NSArray arrayWithObjects:opacityAnimation,scaleAnimation, nil]];
+    
+    [CATransaction setCompletionBlock:^(){
+        [self.view.layer removeAllAnimations];
+        [self changeShowingView];
+    }];
+    [self.view.layer addAnimation:animationGroup forKey:@"animationGroup"];
+    
+    [CATransaction commit];
+}
+
+- (void) changeToRandomView {
+    if (showingViewType == TOTALVIEW) {
+        return;
+    }
+    showingViewType = TOTALVIEW;
+    [CATransaction begin];
+    CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    opacityAnimation.toValue = [NSNumber numberWithFloat:0.0f];
+    opacityAnimation.duration = 0.5;
+    opacityAnimation.fillMode = kCAFillModeForwards;
+    opacityAnimation.removedOnCompletion = NO;
+    
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    scaleAnimation.toValue = [NSNumber numberWithFloat:4.0f];
+    scaleAnimation.duration = 0.5;
+    scaleAnimation.fillMode = kCAFillModeForwards;
+    scaleAnimation.removedOnCompletion = NO;
+    
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.duration = 0.49;
+    animationGroup.removedOnCompletion = NO;
+    animationGroup.fillMode = kCAFillModeForwards;
+    animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    [animationGroup setAnimations:[NSArray arrayWithObjects:opacityAnimation,scaleAnimation, nil]];
+    
+    [CATransaction setCompletionBlock:^(){
+        [self.view.layer removeAllAnimations];
+        [self changeShowingView];
+    }];
+    [self.view.layer addAnimation:animationGroup forKey:@"animationGroup"];
+    
+    [CATransaction commit];
+}
+
 
 - (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
     if (showingViewType == SLIDESHOWVIEW) {
         [slideShowView showInvalidate];
     }
     if (recognizer.scale < 1) {
-        if (showingViewType == INDEXVIEW) {
-            return;
-        }
-        showingViewType = INDEXVIEW;
-        [CATransaction begin];
-        CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-        opacityAnimation.toValue = [NSNumber numberWithFloat:0.0f];
-        opacityAnimation.duration = 0.5;
-        opacityAnimation.fillMode = kCAFillModeForwards;
-        opacityAnimation.removedOnCompletion = NO;
-        
-        CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
-        scaleAnimation.toValue = [NSNumber numberWithFloat:0.0f];
-        scaleAnimation.duration = 0.5;
-        scaleAnimation.fillMode = kCAFillModeForwards;
-        scaleAnimation.removedOnCompletion = NO;
-        
-        CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-        animationGroup.duration = 0.49;
-        animationGroup.removedOnCompletion = NO;
-        animationGroup.fillMode = kCAFillModeForwards;
-        animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-        [animationGroup setAnimations:[NSArray arrayWithObjects:opacityAnimation,scaleAnimation, nil]];
-        
-        [CATransaction setCompletionBlock:^(){
-            [self.view.layer removeAllAnimations];
-            [self changeShowingView];
-        }];
-        [self.view.layer addAnimation:animationGroup forKey:@"animationGroup"];
-        
-        [CATransaction commit];
-    } else {
-        if (showingViewType == TOTALVIEW) {
-            return;
-        }
-        showingViewType = TOTALVIEW;
-        [CATransaction begin];
-        CABasicAnimation *opacityAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
-        opacityAnimation.toValue = [NSNumber numberWithFloat:0.0f];
-        opacityAnimation.duration = 0.5;
-        opacityAnimation.fillMode = kCAFillModeForwards;
-        opacityAnimation.removedOnCompletion = NO;
-        
-        CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-        scaleAnimation.toValue = [NSNumber numberWithFloat:4.0f];
-        scaleAnimation.duration = 0.5;
-        scaleAnimation.fillMode = kCAFillModeForwards;
-        scaleAnimation.removedOnCompletion = NO;
-        
-        CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-        animationGroup.duration = 0.49;
-        animationGroup.removedOnCompletion = NO;
-        animationGroup.fillMode = kCAFillModeForwards;
-        animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-        [animationGroup setAnimations:[NSArray arrayWithObjects:opacityAnimation,scaleAnimation, nil]];
-        
-        [CATransaction setCompletionBlock:^(){
-            [self.view.layer removeAllAnimations];
-            [self changeShowingView];
-        }];
-        [self.view.layer addAnimation:animationGroup forKey:@"animationGroup"];
-        
-        [CATransaction commit];
+        [self changeToIndexView];
     }
 }
 
@@ -136,6 +153,7 @@
         [view removeFromSuperview];
     }
     [self.view.layer removeAllAnimations];
+    galleryView.delegate = nil;
     galleryView = nil;
     indexView.delegate = nil;
     indexView = nil;
@@ -147,6 +165,7 @@
         case TOTALVIEW:
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
             galleryView = [[PhotoGalleryView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) withDataList:_btnIndexList withTotalCount:totalCount];
+            galleryView.delegate = self;
             [self.view addSubview:galleryView];
             break;
         case INDEXVIEW:
@@ -161,7 +180,7 @@
         case SLIDESHOWVIEW:
             [UIApplication sharedApplication].idleTimerDisabled = YES; 
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
-            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_btnIndexList];
+            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
             [self.view addSubview:slideShowView];
             break;
         default:
@@ -170,9 +189,39 @@
 }
 
 - (void) selectThis:(id) control {
-    showingViewType = DETAILEDVIEW;
-    selectedIndex = [control tag];
-    [self changeShowingView];
+    if (isSlideRegisterMode) {
+        if ([_slideShowIndexList containsObject:control]) {
+            [_slideShowIndexList removeObject:control];
+            [[(UIButton *) control layer] setBorderColor:[UIColor whiteColor].CGColor];
+            NSArray *list = [[NSUserDefaults standardUserDefaults] objectForKey:kSlideShowList];
+            NSMutableArray *newList = [NSMutableArray array];
+            for (NSString *assetUrl in list) {
+                if (![[[(UIButton *) control layer] name] isEqualToString:assetUrl]) {
+                    [newList addObject:[[(UIButton *) control layer] name]];
+                }
+            }            
+            [[NSUserDefaults standardUserDefaults] setObject:newList forKey:kSlideShowList];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        } else {
+            [_slideShowIndexList addObject:control];
+            [[(UIButton *) control layer] setBorderColor:[UIColor magentaColor].CGColor];
+            NSArray *list = (NSMutableArray *)[[NSUserDefaults standardUserDefaults] objectForKey:kSlideShowList];
+            NSMutableArray *newList = [NSMutableArray array];
+            NSString *asset = [NSString stringWithString:[[(UIButton *) control layer] name]];
+            [newList addObject:asset];
+            for (NSString *assetUrl in list) {
+                if (![[[(UIButton *) control layer] name] isEqualToString:assetUrl]) {
+                    [newList addObject:assetUrl];
+                }
+            }
+            [[NSUserDefaults standardUserDefaults] setObject:newList forKey:kSlideShowList];
+            [[NSUserDefaults standardUserDefaults] synchronize];            
+        }
+    } else {
+        showingViewType = DETAILEDVIEW;
+        selectedIndex = [control tag];
+        [self changeShowingView];
+    }
 }
 
 - (void) didFinishLoadFullLibrary:(NSDictionary *)dataList {
@@ -187,10 +236,26 @@
     NSArray *data = [dataList objectForKey:@"data"];
     NSInteger tCount = 0;
     NSString *title = @"";
+    NSArray *list = [[NSUserDefaults standardUserDefaults] objectForKey:kSlideShowList];
+    NSMutableArray *assetUrlList = [NSMutableArray array];
     for (NSDictionary *dic in data) {
+        [assetUrlList removeAllObjects];
         NSMutableDictionary *dicData = [NSMutableDictionary dictionary];
         NSMutableArray *eachLayerList = [NSMutableArray array];
+        BOOL isExist = NO;
         for (PhotoModel *model in dic) {
+            for (NSString *assetUrl in assetUrlList) {
+                if ([assetUrl isEqualToString:[model assetUrl]]) {
+                    isExist = YES;
+                    break;
+                }
+            }
+            if (isExist) {
+                continue;
+            } else {
+                [assetUrlList addObject:[model assetUrl]];
+            }
+            
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             [btn addTarget:self action:@selector(selectThis:) forControlEvents:UIControlEventTouchUpInside];
             btn.tag = tCount++;
@@ -198,7 +263,14 @@
             CALayer *layer = [btn layer];
             layer.name = [model assetUrl];
             layer.contents = (id) model.thumbImage.CGImage;
-            
+            layer.borderWidth = 2.0f;
+            layer.borderColor = [UIColor whiteColor].CGColor;
+            for (NSString *assetUrl in list) {
+                if ([assetUrl isEqualToString:layer.name]) {
+                    layer.borderColor = [UIColor magentaColor].CGColor;
+                    [_slideShowIndexList addObject:btn];
+                }
+            }
             [eachLayerList addObject:btn];
             [_btnIndexList addObject:btn];
         }
@@ -206,6 +278,10 @@
         [_allLayerList addObject:dicData];
     }
     totalCount = tCount;
+}
+
+- (void) changeSlideSelectMode {
+    isSlideRegisterMode = YES;
 }
 /*
 #pragma mark - System Rotation Methods

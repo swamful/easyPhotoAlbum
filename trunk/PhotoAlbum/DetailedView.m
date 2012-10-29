@@ -77,6 +77,9 @@
         [mainLayer addSublayer:[_layerList objectAtIndex:centerIndex]];
         [mainLayer addSublayer:[_layerList objectAtIndex:rightIndex]];
         
+        currentLayer = [_layerList objectAtIndex:centerIndex];
+        [self imageIndexWithDQueue:index withLayer:currentLayer];
+        
         leftPoint = CGPointMake(self.center.x - (self.frame.size.width * 0.85), self.center.y);
         centerPoint = CGPointMake(self.center.x, self.center.y);
         rightPoint = CGPointMake(self.center.x + (self.frame.size.width * 0.85), self.center.y);
@@ -85,11 +88,9 @@
         
         NSNumber *leftNumber = [NSNumber numberWithInt:leftIndex];
         NSNumber *twoLeftNumber = [NSNumber numberWithInt:twoLeftIndex];
-        NSNumber *centerNumber = [NSNumber numberWithInt:centerIndex];
         NSNumber *rightNumber = [NSNumber numberWithInt:rightIndex];
         NSNumber *twoRightNumber = [NSNumber numberWithInt:twoRightIndex];
         
-        [requestImageQueue addObject:centerNumber];
         [requestImageQueue addObject:leftNumber];
         [requestImageQueue addObject:rightNumber];
         [requestImageQueue addObject:twoLeftNumber];
@@ -331,9 +332,7 @@
                                 } else if ([layer.name isEqualToString:@"imageLayer"]) {
                                     layer.contents = (id) [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]].CGImage;
                                 } if ([layer.name isEqualToString:@"addressLayer"]) {
-                                    if (location) {
-                                        layer.string = address;
-                                    }
+                                    layer.string = address;
                                 }
                             }
                         });

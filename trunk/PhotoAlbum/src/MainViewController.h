@@ -13,7 +13,7 @@
 #import "UIConstans.h"
 #import "DetailedView.h"
 #import "SlideShowView.h"
-@interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate, IndexViewDelegate>{
+@interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate, IndexViewDelegate ,PhotoGallertViewDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
     DetailedView *detailedView;
@@ -21,12 +21,13 @@
     SlideShowView *slideShowView;
     NSMutableArray *_allLayerList;
     NSMutableArray *_btnIndexList;
+    NSMutableArray *_slideShowIndexList;
     VIEWTYPE showingViewType;
     
     NSInteger totalCount;
     
     NSInteger selectedIndex;
-    
+    BOOL isSlideRegisterMode;
 }
 
 @end

@@ -9,9 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "UIConstans.h"
 
-
+@protocol PhotoGallertViewDelegate;
 
 @interface PhotoGalleryView : UIView <UIGestureRecognizerDelegate>{
+    id<PhotoGallertViewDelegate> _delegate;
     NSMutableArray *_mainBoardList;
 
     CALayer *_lastLayer;
@@ -32,8 +33,14 @@
     CGFloat heightMoveThreshold;
     
     BOOL isSliding;
+    float currentScale;
 }
-
+@property (nonatomic) id<PhotoGallertViewDelegate> delegate;
 - (id)initWithFrame:(CGRect)frame withDataList:(NSArray *) dataList withTotalCount:(NSInteger) totalCount;
+
+@end
+
+@protocol PhotoGallertViewDelegate <NSObject>
+- (void) closeGalleryView;
 
 @end
