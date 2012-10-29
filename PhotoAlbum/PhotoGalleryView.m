@@ -173,27 +173,16 @@
     return NO;
 }
 
+- (void) rotateMovingAnimation:(CGFloat) angle toLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
 
-
-- (void) rotateMovingAnimation:(NSInteger) moveStep toLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
-    CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-    if (moveStep > 0) {
-        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5)];
-    } else {
-        moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, self.center.y - fabs(columnCount/2 - (i -currentIndex)) *5)];
-    }
-    moveAnimation.duration = duration;
-    moveAnimation.fillMode = kCAFillModeForwards;
-    moveAnimation.removedOnCompletion = NO;
-    moveAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([(CALayer*)[layer presentationLayer] transform], DEGREES_TO_RADIANS(rotateAngle * moveStep), 0, 1, 0)];
+    rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([(CALayer*)[layer presentationLayer] transform], angle, 0, 1, 0)];
+//    NSLog(@"degree to radians : %f", DEGREES_TO_RADIANS(rotateAngle * moveStep));
     rotationAnimation.duration = duration;
     rotationAnimation.fillMode = kCAFillModeForwards;
     rotationAnimation.removedOnCompletion = NO;
     rotationAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-    
+    rotationAnimation.cumulative = YES;
     CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
     animationGroup.duration = duration;
     animationGroup.removedOnCompletion = NO;
@@ -203,7 +192,6 @@
     animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
 
     [animationGroup setAnimations:[NSArray arrayWithObjects:rotationAnimation, nil]];
-
     
     [layer addAnimation:animationGroup forKey:@"animationGroup"];
 }
@@ -238,13 +226,14 @@
     if (pan.state == UIGestureRecognizerStateBegan) {
         forePoint = CGPointZero;
         isDiresctionWidth = fabs(delta.x) > fabs(delta.y);
+        return;
     }
 
     NSInteger moveStep = 0;
     if (!isDiresctionWidth) {
         moveStep = delta.y / heightMoveThreshold;
     } else {
-        moveStep = delta.x / 80;
+        moveStep = delta.x / 150;
     }
 
 //    NSLog(@"moveStep = %d  isANimating :%d", moveStep, isAnimating);
@@ -260,43 +249,45 @@
     if (isDiresctionWidth) {
         currentIndex = (currentIndex - moveStep + columnCount) % columnCount;        
     }
-    
+    forePoint = delta;
     int i = 0;
-    for (CALayer *layer in _mainBoardList) {
-        if (isDiresctionWidth) {
-            [self rotateMovingAnimation:moveStep toLayer:layer index:i++ duration:0.5];
+    CGFloat angle = DEGREES_TO_RADIANS(rotateAngle * moveStep);
+    if (fabs(moveStep) > 10) {
+        if (moveStep > 0) {
+            angle = DEGREES_TO_RADIANS(rotateAngle * (moveStep - 10)) + DEGREES_TO_RADIANS(rotateAngle * 10);
         } else {
-            isAnimating = NO;
-            return;
-            if ((moveStep > 0 && [self isTopLimit]) || (moveStep <0 && [self isBottomLimit])) {
+            angle = DEGREES_TO_RADIANS(rotateAngle * (moveStep + 10)) + DEGREES_TO_RADIANS(rotateAngle * -10);
+        }
+    }
+    NSLog(@"angle : %f", angle);
+    
+    
+//    if (pan.state == UIGestureRecognizerStateChanged) {
+        for (CALayer *layer in _mainBoardList) {
+            if (isDiresctionWidth) {
+                CGFloat duration = 0.005 * pow(fabs(moveStep - 1), 3) + 0.001;
+//                if (moveStep > 0) {
+//                    moveStep = 1;
+//                } else {
+//                    moveStep = -1;
+//                }
+                [self rotateMovingAnimation:angle toLayer:layer index:i++ duration:duration];
+            } else {
                 isAnimating = NO;
                 return;
             }
-            CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
-            if (moveStep > 0) {
-                moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y + ((thumbSize + thumbMargin) * moveStep))];
-            } else {
-                moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(layer.position.x, layer.position.y - ((thumbSize + thumbMargin) * (- moveStep)))];
-            }
-            moveAnimation.duration = 0.5;
-            moveAnimation.fillMode = kCAFillModeForwards;
-            moveAnimation.removedOnCompletion = NO;
-            moveAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        }        
+//    } else if (pan.state >= UIGestureRecognizerStateEnded) {
+//        for (CALayer *layer in _mainBoardList) {
+//            if (isDiresctionWidth) {
+//                [self rotateMovingAnimation:moveStep toLayer:layer index:i++ duration:0.3];
+//            } else {
+//                isAnimating = NO;
+//                return;
+//            }
+//        }
+//    }
 
-            CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
-            animationGroup.duration = 0.5;
-            animationGroup.removedOnCompletion = NO;
-            animationGroup.fillMode = kCAFillModeForwards;
-            animationGroup.delegate = self;
-            [animationGroup setValue:[NSString stringWithFormat:@"rotating%d",i++] forKey:@"animation"];
-            animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-            [animationGroup setAnimations:[NSArray arrayWithObjects:moveAnimation, nil]];
-            [layer addAnimation:animationGroup forKey:@"animationGroup"];
-        }
-
-
-    }
-    forePoint = delta;    
 }
 
 - (void) animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {

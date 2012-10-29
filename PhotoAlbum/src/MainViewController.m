@@ -39,7 +39,7 @@
 }
 
 - (void) changeToSlideView {
-    if (showingViewType == SLIDESHOWVIEW) {
+    if ([_slideShowIndexList count] == 0 || showingViewType == SLIDESHOWVIEW) {
         return;
     }
     showingViewType = SLIDESHOWVIEW;
