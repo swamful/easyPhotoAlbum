@@ -259,7 +259,7 @@
             angle = DEGREES_TO_RADIANS(rotateAngle * (moveStep + 10)) + DEGREES_TO_RADIANS(rotateAngle * -10);
         }
     }
-    NSLog(@"angle : %f", angle);
+//    NSLog(@"angle : %f", angle);
     
     
 //    if (pan.state == UIGestureRecognizerStateChanged) {

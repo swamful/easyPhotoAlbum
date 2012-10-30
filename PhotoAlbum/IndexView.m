@@ -37,13 +37,22 @@
         [self addSubview:_bottomView];
         
         _slideLayer = [CALayer layer];
-        _slideLayer.position = CGPointMake(20, _bottomView.frame.size.height / 2);
+        _slideLayer.position = CGPointMake(0, 0);
         _slideLayer.backgroundColor = [UIColor whiteColor].CGColor;
-        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
+        _slideLayer.bounds = CGRectMake(0, 0, 10, 20);
         _slideLayer.opacity = 0.3;
-        _slideLayer.cornerRadius = 20.0f;
         [_bottomView.layer addSublayer:_slideLayer];
         
+        bevelLayer = [CALayer layer];
+        [bevelLayer setBounds:CGRectMake(0.0f, 0.0f, 50.0f, 50.0f)];
+        bevelLayer.opacity = 0.0f;
+        
+        [bevelLayer setBackgroundColor:[[UIColor clearColor] CGColor]];
+        [bevelLayer setShadowOpacity:1.0];
+        [bevelLayer setShadowRadius:7.0f];
+        [bevelLayer setShadowColor:[[UIColor colorWithRed:0.0f/255.0  green:126.0f/255.0f blue:255.0f/255.0f alpha:1.0f] CGColor]];
+        [bevelLayer setShadowPath:[[UIBezierPath bezierPathWithRoundedRect:CGRectMake(-15.0f, -15.0f, 80.0f, 80.0f) cornerRadius:40.0f] CGPath]];
+        [_bottomView.layer addSublayer:bevelLayer];
         
         UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
         panRecognizer.minimumNumberOfTouches = 1;
@@ -75,10 +84,7 @@
 }
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (!isPanning) {
-        _slideLayer.position = CGPointMake(scrollView.contentOffset.x * ((_bottomView.frame.size.width - 40.0f)/ (scrollView.contentSize.width)) + 20.0f, _slideLayer.position.y);
-    }
-    
+    _slideLayer.position = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width)), _slideLayer.position.y);
 }
 
 - (void) initLayerwithImageDataList:(NSArray *)allLayerList {
@@ -106,7 +112,7 @@
 
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
             btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/6), thumbMargin + (thumbSize + thumbMargin) * (j%6), thumbSize, thumbSize);
-            btn.layer.shouldRasterize = YES;
+//            btn.layer.shouldRasterize = YES;
             [view addSubview:btn];
 
         }
@@ -130,7 +136,41 @@
     }
 }
 
+- (void) newHandlePan:(UIPanGestureRecognizer *) recognizer {
+    UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
+    CGPoint location = [pan locationInView:pan.view];
+    CGPoint delta = [pan translationInView:pan.view];
+    CGFloat widthRatio = _mainScroll.contentSize.width / _mainScroll.frame.size.width * 0.5;
+    CGFloat movingGap = (forePoint.x - delta.x) * widthRatio;
+
+    if (_mainScroll.contentOffset.x <= 0) {
+        movingGap *= 0.01;
+    } else if (_mainScroll.contentOffset.x >= _mainScroll.contentSize.width - _mainScroll.frame.size.width) {
+        movingGap *= 0.01;
+    }
+
+    if (pan.state == UIGestureRecognizerStateBegan) {
+    } else if (pan.state == UIGestureRecognizerStateChanged) {
+        bevelLayer.opacity = 1.0f;
+        [CATransaction setDisableActions:YES];
+        bevelLayer.position = location;
+        [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentOffset.x + movingGap, _mainScroll.contentOffset.y) animated:NO];
+    } else {
+        [CATransaction setDisableActions:NO];
+        bevelLayer.opacity = 0.0f;
+        if (_mainScroll.contentOffset.x < 0) {
+            [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
+        } else if (_mainScroll.contentOffset.x > _mainScroll.contentSize.width - _mainScroll.frame.size.width) {
+            [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:YES];
+        }
+    }
+    _slideLayer.position = CGPointMake(_mainScroll.contentOffset.x * (_bottomView.frame.size.width / (_mainScroll.contentSize.width)), 0);
+    forePoint = delta;
+}
+
 - (void) handlePan:(UIPanGestureRecognizer *) recognizer {
+    [self newHandlePan:recognizer];
+    return;
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
     CGPoint location = [pan locationInView:pan.view];
     
