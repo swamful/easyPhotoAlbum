@@ -316,7 +316,7 @@
                             address = [[[dic objectForKey:@"Placemark"] lastObject] objectForKey:@"address"];
                             address = [address stringByReplacingOccurrencesOfString:@"대한민국" withString:@""];
                         }
-//                    [model setFullImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullResolutionImage]]];
+                        
                     
                         NSArray *timeList = [[timeStamp description] componentsSeparatedByString:@" "];
                         NSArray *dateList = [[timeList objectAtIndex:0] componentsSeparatedByString:@":"];
@@ -330,7 +330,11 @@
                                 if ([layer.name isEqualToString:@"dateLayer"]) {
                                     layer.string = time;
                                 } else if ([layer.name isEqualToString:@"imageLayer"]) {
-                                    layer.contents = (id) [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]].CGImage;
+                                    UIImage *imageToDisplay =
+                                    [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]
+                                                        scale:1.0
+                                                  orientation:[[photo defaultRepresentation] orientation]];
+                                    layer.contents = (id) imageToDisplay.CGImage;
                                 } if ([layer.name isEqualToString:@"addressLayer"]) {
                                     layer.string = address;
                                 }
@@ -423,7 +427,8 @@
 }
 
 - (void) viewLargeImage:(PhotoModel *) model {
-    imageView = [[DetailImageView alloc] initWithFrame:self.frame withImage:[model fullImage]];
+    UIImageOrientation orientation = (UIImageOrientation)[model orientation];
+    imageView = [[DetailImageView alloc] initWithFrame:self.frame withImage:[model fullImage] withOrientation:orientation];
     [self addSubview:imageView];
 }
 - (void) initPan {

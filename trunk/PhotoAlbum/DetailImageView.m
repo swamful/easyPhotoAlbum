@@ -10,7 +10,7 @@
 
 @implementation DetailImageView
 
-- (id)initWithFrame:(CGRect)frame withImage:(UIImage *) image
+- (id)initWithFrame:(CGRect)frame withImage:(UIImage *) image withOrientation:(UIImageOrientation) orientation
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -19,7 +19,13 @@
         scrollView.showsHorizontalScrollIndicator = NO;
         scrollView.showsVerticalScrollIndicator = NO;
         [self addSubview:scrollView];
-        imageView = [[UIImageView alloc] initWithImage:image];
+        
+        UIImage *imageToDisplay =
+        [UIImage imageWithCGImage:[image CGImage]
+                            scale:1.0
+                      orientation: orientation];
+        
+        imageView = [[UIImageView alloc] initWithImage:imageToDisplay];
         imageView.userInteractionEnabled = YES;
         [scrollView addSubview:imageView];
         
@@ -36,6 +42,8 @@
     }
     return self;
 }
+
+
 
 - (UIView*) viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return imageView;

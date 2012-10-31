@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import <AssetsLibrary/AssetsLibrary.h>
 @interface PhotoModel : NSObject {
     NSString *group;
     NSString *address;
@@ -19,6 +19,7 @@
     UIImage *fullImage;
     CGFloat longitude;
     CGFloat latitude;
+    ALAssetOrientation orientation;
     BOOL hasGps;
 }
 @property (nonatomic, strong) NSString *group;
@@ -32,5 +33,6 @@
 @property (nonatomic) CGFloat longitude;
 @property (nonatomic) CGFloat latitude;
 @property (nonatomic) BOOL hasGps;
+@property (nonatomic) ALAssetOrientation orientation;
 
 @end

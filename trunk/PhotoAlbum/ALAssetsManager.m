@@ -135,6 +135,7 @@ ALAssetsLibraryAssetForURLResultBlock resultblock   = ^(ALAsset *photo)
         }
 //        NSLog(@"timeStamp : %@", timeStamp);
 //        NSLog(@"orientation : %d", [[photo defaultRepresentation] orientation]);
+        [model setOrientation:[[photo defaultRepresentation] orientation]];
         [model setTime:timeStamp];
         [model setFullImage:[UIImage imageWithCGImage:[[photo defaultRepresentation] fullResolutionImage]]];
         [model setThumbImage:[UIImage imageWithCGImage:[photo thumbnail]]];
