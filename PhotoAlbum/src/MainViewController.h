@@ -28,6 +28,8 @@
     
     NSInteger selectedIndex;
     BOOL isSlideRegisterMode;
+    
+    UIActivityIndicatorView *indicator;
 }
 
 @end

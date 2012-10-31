@@ -12,5 +12,5 @@
     UIImageView *imageView;
 }
 
-- (id)initWithFrame:(CGRect)frame withImage:(UIImage *) image;
+- (id)initWithFrame:(CGRect)frame withImage:(UIImage *) image withOrientation:(UIImageOrientation) orientation;
 @end

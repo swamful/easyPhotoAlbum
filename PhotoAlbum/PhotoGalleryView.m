@@ -10,7 +10,7 @@
 #import "PhotoModel.h"
 
 #define thumbMargin 1.0f
-#define thumbSize 72.0f
+#define thumbSize 100.0f
 
 @implementation PhotoGalleryView
 - (CATransform3D) getTransForm3DIdentity {
@@ -78,7 +78,7 @@
         layer.transform = [self getTransForm3DIdentity];
         layer.transform = CATransform3DRotate(layer.transform, DEGREES_TO_RADIANS(rotateAngle * ((i % columnCount))), 0, 1, 0);
         layer.anchorPointZ = -anchorPotinZ;
-        layer.position = CGPointMake(self.center.x, 15 *MIN(heightCount,3) + i * 9);
+        layer.position = CGPointMake(self.center.x, 15 *MIN(heightCount,3) + i * 8 + 50);
         layer.bounds = CGRectMake(0, 0, self.frame.size.width, MIN(heightCount,3) * (thumbSize + thumbMargin));
         [_mainBoardList addObject:layer];
         
@@ -87,7 +87,7 @@
 
 - (void) makeDimmedLayer {
     CALayer *dimmedLayer = [CALayer layer];
-    dimmedLayer.frame = CGRectMake(0, -20, self.frame.size.width, self.frame.size.height);
+    dimmedLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     dimmedLayer.backgroundColor = [UIColor blackColor].CGColor;
     dimmedLayer.opacity = 0.7;
 
@@ -109,7 +109,7 @@
 - (void) showTotalView:(NSArray*) btnIndexList withCount:(NSInteger) count {
     NSInteger sidNum = 1;
     
-    columnCount = columnCount + 4 * sidNum;
+    columnCount = 40;
     m34 = -1.0f/ (3000.0f + 400 * sidNum);
     anchorPotinZ = 300.0f + 60 * sidNum;
     
@@ -125,22 +125,25 @@
     NSInteger selectedCount = [selectedList count] / columnCount;
     [self makeTotalMainBoardView:selectedCount];
 
-    for (int i = -2 ; i <  4; i++) {
+    for (int i = -3 ; i <  6; i++) {
         UIView *view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount) % columnCount)];
         view.userInteractionEnabled = YES;
-        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 10) % columnCount)];
+        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 40) % columnCount)];
         view.userInteractionEnabled = YES;
         view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 20) % columnCount)];
         view.userInteractionEnabled = YES;
-        
+        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 60) % columnCount)];
+        view.userInteractionEnabled = YES;
+        view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 80) % columnCount)];
+        view.userInteractionEnabled = YES;
     }
     
 
-    for (int i = 0 ; i < MIN(120, selectedCount * columnCount) ; i++) {
+    for (int i = 0 ; i < MIN(80, selectedCount * columnCount) ; i++) {
         UIView *view = [[self subviews] objectAtIndex:(i % columnCount)];
         UIButton *btn = [selectedList objectAtIndex:arc4random() % [selectedList count]];
         [selectedList removeObject:btn];
-        btn.frame = CGRectMake(thumbMargin, (i / columnCount) * (thumbSize + thumbMargin), thumbSize, thumbSize);
+        btn.frame = CGRectMake(thumbMargin, (i / columnCount) * (thumbSize + thumbMargin * 5), thumbSize, thumbSize);
 
         CALayer *layer = [btn layer];
         layer.shouldRasterize = NO;
@@ -173,10 +176,11 @@
     return NO;
 }
 
-- (void) rotateMovingAnimation:(CGFloat) angle toLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
+- (void) rotateMovingAnimationLayer:(CALayer*)layer index:(NSInteger) i duration:(CGFloat) duration{
 
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([(CALayer*)[layer presentationLayer] transform], angle, 0, 1, 0)];
+    rotationAnimation.fromValue = [NSValue valueWithCATransform3D:[(CALayer*)[layer presentationLayer] transform]];
+    rotationAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DRotate([self getTransForm3DIdentity], DEGREES_TO_RADIANS(rotateAngle * (i - currentIndex)), 0, 1, 0)];
 //    NSLog(@"degree to radians : %f", DEGREES_TO_RADIANS(rotateAngle * moveStep));
     rotationAnimation.duration = duration;
     rotationAnimation.fillMode = kCAFillModeForwards;
@@ -210,7 +214,7 @@
             NSInteger moveStep = -1;
             currentIndex = (currentIndex - moveStep + columnCount) % columnCount;
             for (int i=0; i < [_mainBoardList count]; i++) {
-                [self rotateMovingAnimation:moveStep toLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
+                [self rotateMovingAnimationLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
             }
             
         }        
@@ -221,8 +225,9 @@
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
 
     CGPoint velocity = [pan velocityInView:pan.view];
+
     CGPoint delta = CGPointMake(velocity.x * 0.5, velocity.y * 0.5);
-//    delta = [pan translationInView:pan.view];
+    delta = [pan translationInView:pan.view];
     if (pan.state == UIGestureRecognizerStateBegan) {
         forePoint = CGPointZero;
         isDiresctionWidth = fabs(delta.x) > fabs(delta.y);
@@ -233,7 +238,7 @@
     if (!isDiresctionWidth) {
         moveStep = delta.y / heightMoveThreshold;
     } else {
-        moveStep = delta.x / 150;
+        moveStep = (delta.x - forePoint.x) / 25;
     }
 
 //    NSLog(@"moveStep = %d  isANimating :%d", moveStep, isAnimating);
@@ -245,38 +250,26 @@
         return;
     }
     
-    isAnimating = YES;
+//    isAnimating = YES;
     if (isDiresctionWidth) {
         currentIndex = (currentIndex - moveStep + columnCount) % columnCount;        
     }
     forePoint = delta;
-    int i = 0;
-    CGFloat angle = DEGREES_TO_RADIANS(rotateAngle * moveStep);
-    if (fabs(moveStep) > 10) {
-        if (moveStep > 0) {
-            angle = DEGREES_TO_RADIANS(rotateAngle * (moveStep - 10)) + DEGREES_TO_RADIANS(rotateAngle * 10);
-        } else {
-            angle = DEGREES_TO_RADIANS(rotateAngle * (moveStep + 10)) + DEGREES_TO_RADIANS(rotateAngle * -10);
-        }
-    }
+    
 //    NSLog(@"angle : %f", angle);
     
     
-//    if (pan.state == UIGestureRecognizerStateChanged) {
+    if (pan.state == UIGestureRecognizerStateChanged) {
+        int i = 0;
         for (CALayer *layer in _mainBoardList) {
             if (isDiresctionWidth) {
-                CGFloat duration = 0.005 * pow(fabs(moveStep - 1), 3) + 0.001;
-//                if (moveStep > 0) {
-//                    moveStep = 1;
-//                } else {
-//                    moveStep = -1;
-//                }
-                [self rotateMovingAnimation:angle toLayer:layer index:i++ duration:duration];
+                CGFloat duration = 0.5 * fabs(moveStep);
+                [self rotateMovingAnimationLayer:layer index:i++ duration:duration];
             } else {
                 isAnimating = NO;
                 return;
             }
-        }        
+        }
 //    } else if (pan.state >= UIGestureRecognizerStateEnded) {
 //        for (CALayer *layer in _mainBoardList) {
 //            if (isDiresctionWidth) {
@@ -286,7 +279,7 @@
 //                return;
 //            }
 //        }
-//    }
+    }
 
 }
 
@@ -298,14 +291,18 @@
             view.layer.position = [(CALayer*)[view.layer presentationLayer] position];
             view.layer.transform = [(CALayer*)[view.layer presentationLayer] transform];
         }
-        for (int i = -2 ; i <  4; i++) {
+//        NSLog(@"currentIndex : %d", currentIndex);
+        for (int i = -3 ; i <  6; i++) {
             UIView *view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount) % columnCount)];
             view.userInteractionEnabled = YES;
-            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 10) % columnCount)];
+            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 40) % columnCount)];
             view.userInteractionEnabled = YES;
             view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 20) % columnCount)];
             view.userInteractionEnabled = YES;
-
+            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 60) % columnCount)];
+            view.userInteractionEnabled = YES;
+            view =[[self subviews] objectAtIndex:((currentIndex + i + columnCount + 80) % columnCount)];
+            view.userInteractionEnabled = YES;
         }
         isAnimating = NO;
         if (isSliding) {
@@ -313,7 +310,7 @@
             currentIndex = (currentIndex - moveStep + columnCount) % columnCount;
             isAnimating = YES;
             for (int i=0; i < [_mainBoardList count]; i++) {
-                [self rotateMovingAnimation:moveStep toLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
+                [self rotateMovingAnimationLayer:[_mainBoardList objectAtIndex:i] index:i duration:0.8];
             }
         }
 

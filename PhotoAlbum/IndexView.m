@@ -136,12 +136,12 @@
     }
 }
 
-- (void) newHandlePan:(UIPanGestureRecognizer *) recognizer {
+- (void) handlePan:(UIPanGestureRecognizer *) recognizer {
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
     CGPoint location = [pan locationInView:pan.view];
     CGPoint delta = [pan translationInView:pan.view];
     CGFloat widthRatio = _mainScroll.contentSize.width / _mainScroll.frame.size.width * 0.5;
-    CGFloat movingGap = (forePoint.x - delta.x) * widthRatio;
+    CGFloat movingGap = (delta.x - forePoint.x) * widthRatio;
 
     if (_mainScroll.contentOffset.x <= 0) {
         movingGap *= 0.01;
@@ -166,64 +166,6 @@
     }
     _slideLayer.position = CGPointMake(_mainScroll.contentOffset.x * (_bottomView.frame.size.width / (_mainScroll.contentSize.width)), 0);
     forePoint = delta;
-}
-
-- (void) handlePan:(UIPanGestureRecognizer *) recognizer {
-    [self newHandlePan:recognizer];
-    return;
-    UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
-    CGPoint location = [pan locationInView:pan.view];
-    
-    if (!CGRectContainsPoint(_slideLayer.frame, location)) {
-        return;
-    }
-    
-    CGRect gestureBound = CGRectMake(20, 0, _bottomView.frame.size.width - 40, _bottomView.frame.size.height);
-    if (!CGRectContainsPoint(gestureBound, location)) {
-        [CATransaction setDisableActions:NO];
-        _slideLayer.opacity = 0.3;
-        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
-        _slideLayer.position = CGPointMake(15, _slideLayer.position.y);
-        _slideLayer.cornerRadius = 20.0f;
-        _slideLayer.shadowOpacity = 0.0f;
-        if (location.x < 20) {
-            _slideLayer.position = CGPointMake(20, _slideLayer.position.y);
-           [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:NO];
-        } else {
-            _slideLayer.position = CGPointMake(_bottomView.frame.size.width - 20, _slideLayer.position.y);
-           [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:NO];
-        }
-        if (pan.state >= UIGestureRecognizerStateEnded) {
-            isPanning = NO;            
-        }
-
-        return;
-    }
-    
-    [CATransaction setDisableActions:YES];
-    CGFloat positionX = location.x * (_bottomView.frame.size.width - 40) / _bottomView.frame.size.width;
-    _slideLayer.position = CGPointMake(positionX + 20, _slideLayer.position.y);
-    location = CGPointMake(positionX * ((_mainScroll.contentSize.width - _mainScroll.frame.size.width)/ (_bottomView.frame.size.width - 40)) , location.y);
-    if (pan.state == UIGestureRecognizerStateBegan) {
-        [CATransaction setDisableActions:NO];
-        _slideLayer.bounds = CGRectMake(0, 0, 80, 80);
-        _slideLayer.cornerRadius = 40.0f;
-        _slideLayer.shadowColor = [UIColor grayColor].CGColor;
-        _slideLayer.shadowOpacity = 5.0f;
-        _slideLayer.shadowOffset = CGSizeMake(-10.0f, -10.0f);
-        isPanning = YES;
-        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
-    } else if (pan.state == UIGestureRecognizerStateChanged) {
-        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
-    } else {
-        [CATransaction setDisableActions:NO];
-        _slideLayer.opacity = 0.3;
-        _slideLayer.bounds = CGRectMake(0, 0, 40, 40);
-        _slideLayer.cornerRadius = 20.0f;
-        _slideLayer.shadowOpacity = 0.0f;
-        [_mainScroll setContentOffset:CGPointMake(location.x, _mainScroll.contentOffset.y) animated:NO];
-        isPanning = NO;
-    }
 }
 
 - (void) changeSlideSetEnable:(BOOL) enable {

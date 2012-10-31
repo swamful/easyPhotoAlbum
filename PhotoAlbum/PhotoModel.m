@@ -10,7 +10,7 @@
 
 @implementation PhotoModel
 @synthesize group, address, longitude, latitude;
-@synthesize time, assetUrl, thumbImage;
+@synthesize time, assetUrl, thumbImage, orientation;
 @synthesize device, image, fullImage, hasGps;
 
 @end

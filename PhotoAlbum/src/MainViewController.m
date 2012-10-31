@@ -14,6 +14,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    indicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+    indicator.center = self.view.center;
+    indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+    [self.view addSubview:indicator];
+    [indicator startAnimating];
     _allLayerList = [[NSMutableArray alloc] init];
     _btnIndexList = [[NSMutableArray alloc] init];
     _slideShowIndexList = [[NSMutableArray alloc] init];
@@ -159,11 +164,10 @@
     indexView = nil;
     detailedView = nil;
     slideShowView = nil;
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     switch (showingViewType) {
         case TOTALVIEW:
-            [[UIApplication sharedApplication] setStatusBarHidden:YES];
             galleryView = [[PhotoGalleryView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) withDataList:_btnIndexList withTotalCount:totalCount];
             galleryView.delegate = self;
             [self.view addSubview:galleryView];
@@ -179,7 +183,6 @@
             break;
         case SLIDESHOWVIEW:
             [UIApplication sharedApplication].idleTimerDisabled = YES; 
-            [[UIApplication sharedApplication] setStatusBarHidden:YES];
             slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
             [self.view addSubview:slideShowView];
             break;
@@ -226,6 +229,9 @@
 
 - (void) didFinishLoadFullLibrary:(NSDictionary *)dataList {
     [self makeAllLayerList:dataList];
+    [indicator stopAnimating];
+    [indicator removeFromSuperview];
+    indicator = nil;
     [self changeShowingView];
 }
 
