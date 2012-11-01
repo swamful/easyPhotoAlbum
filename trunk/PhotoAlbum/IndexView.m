@@ -34,6 +34,8 @@
         
         _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 100)];
         _bottomView.backgroundColor = [UIColor blackColor];
+        _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
+
         [self addSubview:_bottomView];
         
         _slideLayer = [CALayer layer];
@@ -151,12 +153,19 @@
 
     if (pan.state == UIGestureRecognizerStateBegan) {
     } else if (pan.state == UIGestureRecognizerStateChanged) {
+        _bottomView.layer.contents = nil;
         bevelLayer.opacity = 1.0f;
         [CATransaction setDisableActions:YES];
         bevelLayer.position = location;
         [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentOffset.x + movingGap, _mainScroll.contentOffset.y) animated:NO];
     } else {
         [CATransaction setDisableActions:NO];
+        if (isSlideRegisterMode) {
+            _bottomView.layer.contents = (id)[UIImage imageNamed:@"selectMode"].CGImage;
+        } else {
+            _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
+        }
+
         bevelLayer.opacity = 0.0f;
         if (_mainScroll.contentOffset.x < 0) {
             [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
@@ -171,11 +180,11 @@
 - (void) changeSlideSetEnable:(BOOL) enable {
     if (enable) {
         isSlideRegisterMode = YES;
-        _mainScroll.backgroundColor = [UIColor grayColor];
+        _bottomView.layer.contents = (id)[UIImage imageNamed:@"selectMode"].CGImage;
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
     } else {
         isSlideRegisterMode = NO;
-        _mainScroll.backgroundColor = [UIColor blackColor];
+        _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
     }
 }
 

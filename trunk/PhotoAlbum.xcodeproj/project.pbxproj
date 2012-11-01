@@ -47,6 +47,8 @@
 		A8DEC730162BD1220096B933 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8DEC72F162BD1220096B933 /* QuartzCore.framework */; };
 		A8DEC737162BD1B60096B933 /* PhotoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DEC736162BD1B60096B933 /* PhotoModel.m */; };
 		A8DEC744162BEF080096B933 /* PhotoGalleryView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DEC743162BEF080096B933 /* PhotoGalleryView.m */; };
+		A8FE968016423AD500D916BB /* menu.png in Resources */ = {isa = PBXBuildFile; fileRef = A8FE967E16423AD500D916BB /* menu.png */; };
+		A8FE968116423AD500D916BB /* selectMode.png in Resources */ = {isa = PBXBuildFile; fileRef = A8FE967F16423AD500D916BB /* selectMode.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +115,8 @@
 		A8DEC736162BD1B60096B933 /* PhotoModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoModel.m; sourceTree = "<group>"; };
 		A8DEC742162BEF080096B933 /* PhotoGalleryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoGalleryView.h; sourceTree = "<group>"; };
 		A8DEC743162BEF080096B933 /* PhotoGalleryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoGalleryView.m; sourceTree = "<group>"; };
+		A8FE967E16423AD500D916BB /* menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menu.png; sourceTree = "<group>"; };
+		A8FE967F16423AD500D916BB /* selectMode.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = selectMode.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -252,6 +256,8 @@
 		6C97329416299AD600CD5D18 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				A8FE967E16423AD500D916BB /* menu.png */,
+				A8FE967F16423AD500D916BB /* selectMode.png */,
 				6C97329C16299AD600CD5D18 /* btn_close.png */,
 			);
 			name = img;
@@ -352,6 +358,8 @@
 				6C9732731629992300CD5D18 /* Default@2x.png in Resources */,
 				6C9732751629992300CD5D18 /* Default-568h@2x.png in Resources */,
 				6C9732A416299AD600CD5D18 /* btn_close.png in Resources */,
+				A8FE968016423AD500D916BB /* menu.png in Resources */,
+				A8FE968116423AD500D916BB /* selectMode.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
