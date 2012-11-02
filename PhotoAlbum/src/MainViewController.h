@@ -13,6 +13,7 @@
 #import "UIConstans.h"
 #import "DetailedView.h"
 #import "SlideShowView.h"
+#import "GuideView.h"
 @interface MainViewController: UIViewController <ALAssetsMangerDelegate, UIGestureRecognizerDelegate, IndexViewDelegate ,PhotoGallertViewDelegate>{
     ALAssetsManager *alassetManager;
     PhotoGalleryView *galleryView;
@@ -29,6 +30,8 @@
     NSInteger selectedIndex;
     BOOL isSlideRegisterMode;
     BOOL isOverFirstLoad;
+
+    GuideView *guideView;
     
     UIActivityIndicatorView *indicator;
 }

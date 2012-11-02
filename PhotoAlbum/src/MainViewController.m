@@ -27,24 +27,60 @@
     [pinchRecognizer setDelegate:self];
     [self.view addGestureRecognizer:pinchRecognizer];
 
-    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    tapRecognizer.numberOfTapsRequired = 1;
-    [self.view addGestureRecognizer:tapRecognizer];
-
     showingViewType = INDEXVIEW;
 
     alassetManager = [ALAssetsManager getSharedInstance];
     alassetManager.delegate = self;
 
     [alassetManager getPhotoLibrary];
+    
+    if (![[[NSUserDefaults standardUserDefaults] objectForKey:@"isNoGuide"] boolValue]) {
+        guideView = [[GuideView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+        [self.view addSubview:guideView];
+    }
 }
+
+- (void) gudieViewShowAni {
+    [UIView transitionWithView:guideView duration:0.6 options:UIViewAnimationOptionTransitionFlipFromRight animations:^{
+        guideView.hidden = NO;
+    } completion:^(BOOL finish){}];
+}
+
+- (void) guideViewCloseAni {
+    [UIView transitionWithView:guideView duration:0.6 options:UIViewAnimationOptionTransitionFlipFromLeft animations:^{
+        guideView.hidden = YES;
+    } completion:^(BOOL finish){
+        [guideView removeFromSuperview];
+        guideView = nil;
+    }];
+}
+
+- (void) showGuideView {
+    guideView = [[GuideView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    guideView.hidden = YES;
+    [self.view addSubview:guideView];
+    [self performSelector:@selector(gudieViewShowAni) withObject:nil afterDelay:0.0];
+    
+}
+
+- (void) closeGuideView {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:@"isNoGuide"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [self performSelector:@selector(guideViewCloseAni) withObject:nil afterDelay:0.0];
+}
+
 
 - (void) closeGalleryView {
     [self changeToIndexView];
 }
 
 - (void) changeToSlideView {
-    if ([_slideShowIndexList count] == 0 || showingViewType == SLIDESHOWVIEW) {
+    if ([_slideShowIndexList count] == 0 ) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"슬라이드 쇼 사진을 선택해 주세요" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        [self.view addSubview:alertView];
+        [alertView show];
+        return;
+    } else if (showingViewType == SLIDESHOWVIEW) {
         return;
     }
     showingViewType = SLIDESHOWVIEW;
@@ -61,13 +97,6 @@
     [self.view.layer addAnimation:opacityAnimation forKey:@"opacity"];
     [CATransaction commit];
     
-}
-
-- (void) handleTap:(UITapGestureRecognizer *) recognizer {
-    if (indexView && isSlideRegisterMode) {
-        [indexView changeSlideSetEnable:NO];
-    }
-    isSlideRegisterMode = NO;
 }
 
 - (void) changeToIndexView {
@@ -159,6 +188,9 @@
         }
     }
     for (UIView *view in [self.view subviews]) {
+        if ([view isKindOfClass:[GuideView class]]) {
+            continue;
+        }
         [view removeFromSuperview];
     }
     [self.view.layer removeAllAnimations];
@@ -183,7 +215,7 @@
                 [indexView beginAnimation];
                 isOverFirstLoad = YES;
             }
-            [self.view addSubview:indexView];
+            [self.view insertSubview:indexView atIndex:0];
             break;
         case DETAILEDVIEW:
             detailedView = [[DetailedView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withBtnIndexList:_btnIndexList currentIndex:selectedIndex];
@@ -191,7 +223,6 @@
             break;
         case SLIDESHOWVIEW:
             [UIApplication sharedApplication].idleTimerDisabled = YES;
-            NSLog(@"is status bar:%d", [[UIApplication sharedApplication] isStatusBarHidden]);
             slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, -10, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
             [self.view addSubview:slideShowView];
             break;
@@ -295,8 +326,8 @@
     totalCount = tCount;
 }
 
-- (void) changeSlideSelectMode {
-    isSlideRegisterMode = YES;
+- (void) changeSlideSelectMode:(BOOL) isSlide {
+    isSlideRegisterMode = isSlide;
 }
 /*
 #pragma mark - System Rotation Methods
