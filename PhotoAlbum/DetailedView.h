@@ -33,6 +33,7 @@
     CGPoint forePoint;
     BOOL isTap;
     BOOL isMoving;
+    BOOL isInit;
     
     UIPanGestureRecognizer* panRecognizer;
     NSMutableArray *requestImageQueue;
@@ -40,6 +41,7 @@
     UIImage *centerImage;
     
     ALAssetsLibrary *assetsLibrary;
+    UIActivityIndicatorView *indicator;
     dispatch_queue_t dqueue;
     dispatch_semaphore_t s;
 }

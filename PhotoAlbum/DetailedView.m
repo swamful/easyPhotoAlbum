@@ -54,9 +54,16 @@
 - (id)initWithFrame:(CGRect)frame withBtnIndexList:(NSArray*) btnIndexList currentIndex:(NSInteger) index
 {
     self = [super initWithFrame:frame];
-    if (self) {        
+    if (self) {
+        isInit = YES;
         currentIndex = index;
         _btnIndexList = btnIndexList;
+        indicator = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 80)];
+        indicator.center = self.center;
+        indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+        [self addSubview:indicator];
+
+        
         _layerList = [[NSMutableArray alloc] init];
         requestImageQueue = [[NSMutableArray alloc] init];
 
@@ -125,8 +132,6 @@
         
         alAssetManager = [ALAssetsManager getSharedInstance];
         alAssetManager.delegate = self;
-
-        [self makeLayerList];
         
         UIView *topDimmedView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, 60)];
         topDimmedView.backgroundColor = [UIColor grayColor];
@@ -155,7 +160,7 @@
     dispatch_release(s);
 }
 
-- (void) makeLayerList {
+- (void) makeInitLayerList {
     for (NSNumber *index in requestImageQueue) {
         currentLayer = [_layerList objectAtIndex:[index intValue]];
         [self imageIndexWithDQueue:currentIndex + ([index intValue] -centerIndex) withLayer:currentLayer];
@@ -340,6 +345,10 @@
                                     layer.string = address;
                                 }
                             }
+                            if (isInit) {
+                                isInit = NO;
+                                [self makeInitLayerList];
+                            }
                         });
                         photo = nil;
                     }
@@ -428,27 +437,30 @@
 }
 
 - (void) viewLargeImage:(PhotoModel *) model {
+    [indicator stopAnimating];
     UIImageOrientation orientation = (UIImageOrientation)[model orientation];
     imageView = [[DetailImageView alloc] initWithFrame:self.frame withImage:[model fullImage] withOrientation:orientation];
     [self addSubview:imageView];
-}
-- (void) initPan {
     isTap = NO;
-    [self addGestureRecognizer:panRecognizer];
 }
 
 - (void) handleTap:(UITapGestureRecognizer *)recognizer {
     if (isTap) {
-        if (imageView) {
-            [imageView removeFromSuperview];
-            imageView =nil;
-            [self performSelector:@selector(initPan) withObject:nil afterDelay:0.1];
-        }
         return;
     }
+
+    if (imageView) {
+        [imageView removeFromSuperview];
+        imageView =nil;
+        [self addGestureRecognizer:panRecognizer];
+        return;
+    }
+    [self bringSubviewToFront:indicator];
+    [indicator startAnimating];
+    
     [self removeGestureRecognizer:panRecognizer];
     isTap = YES;
-    NSLog(@"currentIndex : %d", currentIndex);
+//    NSLog(@"currentIndex : %d", currentIndex);
     [self requestPhotoWithInt:currentIndex];
 }
 
