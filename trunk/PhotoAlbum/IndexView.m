@@ -17,7 +17,7 @@
     return transform;
 }
 
-- (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList
+- (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList currentIndex:(NSInteger) currentIndex
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -27,10 +27,11 @@
         _mainScroll.showsVerticalScrollIndicator = NO;
         _mainScroll.alwaysBounceHorizontal = YES;
         _mainScroll.delegate = self;
+        _mainScroll.contentSize = CGSizeMake(self.frame.size.width, self.frame.size.height);
         [self addSubview:_mainScroll];
 
         
-        [self initLayerwithImageDataList:allLayerList];
+        [self initLayerwithImageDataList:allLayerList currentIndex:currentIndex];
         
         _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 100)];
         _bottomView.backgroundColor = [UIColor blackColor];
@@ -141,6 +142,37 @@
     NSLog(@"index view dealloc");
 }
 
+- (void) beginAnimation {
+    NSLog(@"here");
+    for (CALayer *layer in [_mainScroll.layer sublayers]) {
+        if ([layer.name isEqualToString:@"textLayer"]) {
+            layer.opacity = 0.0f;
+            layer.transform = CATransform3DMakeRotation(DEGREES_TO_RADIANS(40), 0, 0, 1);
+        }
+    }
+
+
+    [CATransaction begin];
+    CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    moveAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(self.center.x + self.frame.size.width * 1.5, _mainScroll.center.y)];
+    moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.center.x, _mainScroll.center.y)];
+    moveAnimation.duration = 0.7f;
+    moveAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    
+    [CATransaction setCompletionBlock:^(){
+        for (CALayer *layer in [_mainScroll.layer sublayers]) {
+            if ([layer.name isEqualToString:@"textLayer"]) {
+                layer.opacity = 1.0f;
+                layer.transform = CATransform3DRotate(layer.transform, DEGREES_TO_RADIANS(-70), 0, 0, 1);
+            }
+        }
+    }];
+    [_mainScroll.layer addAnimation:moveAnimation forKey:@"moveAnimation"];
+    [CATransaction commit];
+    
+    
+}
+
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     isPanning = NO;
 }
@@ -149,8 +181,8 @@
     _slideLayer.position = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width)), _slideLayer.position.y);
 }
 
-- (void) initLayerwithImageDataList:(NSArray *)allLayerList {
-
+- (void) initLayerwithImageDataList:(NSArray *)allLayerList currentIndex:(NSInteger) currentIndex {
+    CGFloat currentOffset;
     NSInteger thumbSize = 45;
     NSInteger thumbMargin = 3;
 
@@ -163,10 +195,13 @@
         view.backgroundColor = [UIColor blackColor];
         [_mainScroll addSubview:view];
         CATextLayer *textLayer = [CATextLayer layer];
-        textLayer.frame = CGRectMake(lastWidth + 5, 15, 80, 40);
+        textLayer.frame = CGRectMake(lastWidth - 20, 50, 80, 40);
         textLayer.alignmentMode = kCAAlignmentLeft;
+        textLayer.anchorPoint = CGPointMake(0.0f, 1.0f);
+        textLayer.transform = CATransform3DMakeRotation(DEGREES_TO_RADIANS(-30), 0, 0, 1);
         textLayer.fontSize = 14.0f;
-        textLayer.transform = CATransform3DMakeRotation(DEGREES_TO_RADIANS(- 30), 0, 0, 1);
+
+        textLayer.name = @"textLayer";
         textLayer.string = [key stringByReplacingOccurrencesOfString:@"-" withString:@"."];
         textLayer.font = (__bridge CFTypeRef)([UIFont fontWithName:@"GillSans-Italic" size:13].fontName);
         [_mainScroll.layer addSublayer:textLayer];
@@ -176,6 +211,9 @@
             btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/6), thumbMargin + (thumbSize + thumbMargin) * (j%6), thumbSize, thumbSize);
 //            btn.layer.shouldRasterize = YES;
             [view addSubview:btn];
+            if (btn.tag == currentIndex) {
+                currentOffset = view.frame.origin.x;
+            }
 
         }
         
@@ -187,12 +225,14 @@
     lineLayer.opacity = 0.5;
     lineLayer.frame = CGRectMake(0, self.frame.size.height - 101, _mainScroll.contentSize.width, 1);
     [_mainScroll.layer addSublayer:lineLayer];
+    [_mainScroll setContentOffset:CGPointMake(currentOffset, _mainScroll.contentOffset.y) animated:YES];
 }
 
 - (void) handleTap:(UITapGestureRecognizer *) recognizer {
     if (isSlideRegisterMode) {
         return;
     }
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     if (_delegate && [_delegate respondsToSelector:@selector(changeToSlideView)]) {
         [_delegate changeToSlideView];
     }
@@ -213,19 +253,17 @@
 
     if (pan.state == UIGestureRecognizerStateBegan) {
     } else if (pan.state == UIGestureRecognizerStateChanged) {
-        _bottomView.layer.contents = nil;
+        _menuLayer.opacity = 0.0f;
         bevelLayer.opacity = 1.0f;
         [CATransaction setDisableActions:YES];
         bevelLayer.position = location;
         [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentOffset.x + movingGap, _mainScroll.contentOffset.y) animated:NO];
     } else {
         [CATransaction setDisableActions:NO];
-        if (isSlideRegisterMode) {
-            _bottomView.layer.contents = (id)[UIImage imageNamed:@"selectMode"].CGImage;
-        } else {
-            _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
+        if (!isSlideRegisterMode) {
+            _menuLayer.opacity = 1.0f;
         }
-
+        
         bevelLayer.opacity = 0.0f;
         if (_mainScroll.contentOffset.x < 0) {
             [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
@@ -240,11 +278,13 @@
 - (void) changeSlideSetEnable:(BOOL) enable {
     if (enable) {
         isSlideRegisterMode = YES;
+        _menuLayer.opacity = 0.0f;
         _bottomView.layer.contents = (id)[UIImage imageNamed:@"selectMode"].CGImage;
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
     } else {
         isSlideRegisterMode = NO;
-        _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
+        _menuLayer.opacity = 1.0f;
+        _bottomView.layer.contents = nil;
     }
 }
 

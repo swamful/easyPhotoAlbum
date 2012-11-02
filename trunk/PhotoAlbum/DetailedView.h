@@ -43,5 +43,6 @@
     dispatch_queue_t dqueue;
     dispatch_semaphore_t s;
 }
+@property (nonatomic) NSInteger currentIndex;
 - (id)initWithFrame:(CGRect)frame withBtnIndexList:(NSArray*) btnIndexList currentIndex:(NSInteger) index;
 @end

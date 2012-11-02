@@ -25,9 +25,10 @@
     VIEWTYPE showingViewType;
     
     NSInteger totalCount;
-    
+    NSInteger currentIndex;
     NSInteger selectedIndex;
     BOOL isSlideRegisterMode;
+    BOOL isOverFirstLoad;
     
     UIActivityIndicatorView *indicator;
 }
