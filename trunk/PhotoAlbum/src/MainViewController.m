@@ -169,7 +169,6 @@
 
 
 - (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     if (showingViewType == SLIDESHOWVIEW) {
         [slideShowView showInvalidate];
     } else if (showingViewType == DETAILEDVIEW) {
@@ -223,7 +222,7 @@
             break;
         case SLIDESHOWVIEW:
             [UIApplication sharedApplication].idleTimerDisabled = YES;
-            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, -10, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
+            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
             [self.view addSubview:slideShowView];
             break;
         default:

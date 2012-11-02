@@ -27,7 +27,7 @@
             CALayer *showLayer = [CALayer layer];
             showLayer.name = selectedLayer.name;
             showLayer.transform = [self getTransForm3DIdentity];
-            showLayer.bounds = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+            showLayer.bounds = CGRectMake(0, 0, 320, 480);
             showLayer.position = CGPointMake(self.center.x, self.center.y);
             showLayer.anchorPointZ = 1000.0f;
             [self.layer addSublayer:showLayer];
@@ -115,7 +115,13 @@
                     [assetsLibrary assetForURL:[NSURL URLWithString:assetUrl] resultBlock:^(ALAsset *photo){
                         if( photo ){
                             dispatch_async(dispatch_get_main_queue(), ^{
-                                layer.contents = (id) [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]].CGImage;
+                                UIImage *imageToDisplay =
+                                [UIImage imageWithCGImage:[[photo defaultRepresentation] fullScreenImage]
+                                                    scale:1.0
+                                              orientation:[[photo defaultRepresentation] orientation]];
+
+                                layer.contents = (id)imageToDisplay.CGImage;
+//                                layer.bounds = CGRectMake(0, 0, CGImageGetWidth([[photo defaultRepresentation] fullScreenImage]), CGImageGetHeight([[photo defaultRepresentation] fullScreenImage]));
 //                                NSLog(@"layer :%@", layer.name);
                             });
                             photo = nil;

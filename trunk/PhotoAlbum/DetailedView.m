@@ -177,7 +177,7 @@
     CALayer *layer = [CALayer layer];
     layer.transform = [self getViewTransForm3DIdentity];
     layer.transform = CATransform3DScale(layer.transform, 0.7, 0.7,0.7);
-    layer.bounds = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    layer.bounds = CGRectMake(0, 0, 320, 480);
     layer.position = CGPointMake(boardLayer.position.x, boardLayer.position.y);
     layer.sublayerTransform = CATransform3DIdentity;
     layer.name = @"imageLayer";

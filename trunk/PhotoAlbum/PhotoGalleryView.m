@@ -69,6 +69,11 @@
 }
 
 - (void) makeTotalMainBoardView:(NSInteger) heightCount {
+    CGFloat startHeight = 50;
+    if ([UIScreen mainScreen].bounds.size.height == 568) {
+        startHeight = 100;
+    }
+
     for (int i = 0; i <columnCount; i++) {
         UIView *view = [[UIView alloc] init];
         view.userInteractionEnabled = NO;
@@ -78,7 +83,7 @@
         layer.transform = [self getTransForm3DIdentity];
         layer.transform = CATransform3DRotate(layer.transform, DEGREES_TO_RADIANS(rotateAngle * ((i % columnCount))), 0, 1, 0);
         layer.anchorPointZ = -anchorPotinZ;
-        layer.position = CGPointMake(self.center.x, 15 *MIN(heightCount,3) + i * 8 + 50);
+        layer.position = CGPointMake(self.center.x, 15 *MIN(heightCount,3) + i * 8 + startHeight);
         layer.bounds = CGRectMake(0, 0, self.frame.size.width, MIN(heightCount,3) * (thumbSize + thumbMargin));
         [_mainBoardList addObject:layer];
         
@@ -113,10 +118,9 @@
     m34 = -1.0f/ (3000.0f + 400 * sidNum);
     anchorPotinZ = 300.0f + 60 * sidNum;
     
-//    self.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     rotateAngle = RADIANS_TO_DEGREE(4*M_PI) / columnCount;
-    NSLog(@"list count : %d", [btnIndexList count]);
-    NSLog(@"total count : %d", count);
+//    NSLog(@"list count : %d", [btnIndexList count]);
+//    NSLog(@"total count : %d", count);
     NSMutableArray *selectedList = [NSMutableArray array];
     for (UIButton *btn in btnIndexList) {
         [selectedList addObject:btn];
