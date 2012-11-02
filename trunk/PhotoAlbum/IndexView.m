@@ -34,7 +34,7 @@
         [self initLayerwithImageDataList:allLayerList currentIndex:currentIndex];
         
         _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 100)];
-        _bottomView.backgroundColor = [UIColor blackColor];
+        _bottomView.layer.contents = (id) [UIImage imageNamed:@"controllPannel"].CGImage;
         [self addSubview:_bottomView];
         
         _slideLayer = [CALayer layer];
@@ -44,7 +44,7 @@
         _slideLayer.opacity = 0.3;
         [_bottomView.layer addSublayer:_slideLayer];
         
-        [self makeMenuLayer];
+//        [self makeMenuLayer];
         bevelLayer = [CALayer layer];
         [bevelLayer setBounds:CGRectMake(0.0f, 0.0f, 50.0f, 50.0f)];
         bevelLayer.opacity = 0.0f;
@@ -66,76 +66,29 @@
         [CATransaction setDisableActions:NO];
         
         UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLong:)];
-        longPressRecognizer.minimumPressDuration = 0.3;
+        longPressRecognizer.minimumPressDuration = 0.4;
         [_bottomView addGestureRecognizer:longPressRecognizer];
         
         UIPinchGestureRecognizer *pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self  action:@selector(handleScale:)];
         [_bottomView addGestureRecognizer:pinchRecognizer];
         
+        _selectModeLayer = [CATextLayer layer];
+        _selectModeLayer.string = @"Select Slide Photos";
+        _selectModeLayer.font = (__bridge CFTypeRef)([UIFont fontWithName:@"GillSans-Italic" size:30].fontName);
+        _selectModeLayer.frame = CGRectMake(0, 25, 320, 50);
+        _selectModeLayer.foregroundColor = [UIColor whiteColor].CGColor;
+        _selectModeLayer.alignmentMode = kCAAlignmentCenter;
+        _selectModeLayer.opacity = 0.0f;
+        [_bottomView.layer addSublayer:_selectModeLayer];
+
+        UIButton *infoBtn = [UIButton buttonWithType:UIButtonTypeInfoLight];
+        infoBtn.frame = CGRectMake(-5, -5, 40, 40);
+        [infoBtn addTarget:nil action:@selector(showGuideView) forControlEvents:UIControlEventTouchUpInside];
+        [_bottomView addSubview:infoBtn];
+        
         isPanning = NO;
     }
     return self;
-}
-
-- (void) makeMenuLayer {
-    _menuLayer = [CALayer layer];
-    _menuLayer.bounds = CGRectMake(0, 0, _bottomView.frame.size.width, _bottomView.frame.size.height);
-    _menuLayer.position = CGPointMake(_bottomView.frame.size.width / 2, _bottomView.frame.size.height / 2);
-    _menuLayer.backgroundColor = [UIColor whiteColor].CGColor;
-//    _menuLayer.opacity = 0.5;
-    [_bottomView.layer addSublayer:_menuLayer];
-    
-    CALayer *dTapLayer = [CALayer layer];
-    dTapLayer.frame = CGRectMake(10, 10, 40, 40);
-    dTapLayer.contents = (id)[UIImage imageNamed:@"Double_tap"].CGImage;
-    [_menuLayer addSublayer:dTapLayer];
-    
-    CATextLayer *dTLayer = [CATextLayer layer];
-    dTLayer.frame = CGRectMake(60, 20, 70, 30);
-    dTLayer.string = @"Slide Show";
-    dTLayer.foregroundColor = [UIColor redColor].CGColor;
-    dTLayer.fontSize = 13.0f;
-    dTLayer.alignmentMode = kCAAlignmentCenter;
-    [_menuLayer addSublayer:dTLayer];
-    
-    CALayer *pinchLayer = [CALayer layer];
-    pinchLayer.frame = CGRectMake(140, 50, 60, 40);
-    pinchLayer.contents = (id)[UIImage imageNamed:@"Pinch"].CGImage;
-    [_menuLayer addSublayer:pinchLayer];
-
-    CATextLayer *pTLayer = [CATextLayer layer];
-    pTLayer.frame = CGRectMake(200, 60, 100, 30);
-    pTLayer.string = @"Closw View";
-    pTLayer.foregroundColor = [UIColor redColor].CGColor;
-    pTLayer.fontSize = 13.0f;
-    pTLayer.alignmentMode = kCAAlignmentCenter;
-    [_menuLayer addSublayer:pTLayer];
-
-    CALayer *spreadLayer = [CALayer layer];
-    spreadLayer.frame = CGRectMake(140, 10, 60, 40);
-    spreadLayer.contents = (id)[UIImage imageNamed:@"Spread"].CGImage;
-    [_menuLayer addSublayer:spreadLayer];
-
-    CATextLayer *sTLayer = [CATextLayer layer];
-    sTLayer.frame = CGRectMake(200, 20, 100, 30);
-    sTLayer.string = @"Random Show";
-    sTLayer.foregroundColor = [UIColor redColor].CGColor;
-    sTLayer.fontSize = 13.0f;
-    sTLayer.alignmentMode = kCAAlignmentCenter;
-    [_menuLayer addSublayer:sTLayer];
-
-    CALayer *pressLayer = [CALayer layer];
-    pressLayer.frame = CGRectMake(10, 50, 40, 40);
-    pressLayer.contents = (id)[UIImage imageNamed:@"Pressed"].CGImage;
-    [_menuLayer addSublayer:pressLayer];
-    
-    CATextLayer *prTLayer = [CATextLayer layer];
-    prTLayer.frame = CGRectMake(60, 60, 80, 30);
-    prTLayer.string = @"Select Slide \nPhotos";
-    prTLayer.foregroundColor = [UIColor redColor].CGColor;
-    prTLayer.fontSize = 13.0f;
-    prTLayer.alignmentMode = kCAAlignmentCenter;
-    [_menuLayer addSublayer:prTLayer];
 }
 
 - (void) dealloc {
@@ -177,7 +130,7 @@
 }
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
-    _slideLayer.position = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width)), _slideLayer.position.y);
+    _slideLayer.position = CGPointMake(scrollView.contentOffset.x * (_bottomView.frame.size.width / (scrollView.contentSize.width - scrollView.frame.size.width)), _slideLayer.position.y);
 }
 
 - (void) initLayerwithImageDataList:(NSArray *)allLayerList currentIndex:(NSInteger) currentIndex {
@@ -224,7 +177,7 @@
     lineLayer.opacity = 0.5;
     lineLayer.frame = CGRectMake(0, self.frame.size.height - 101, _mainScroll.contentSize.width, 1);
     [_mainScroll.layer addSublayer:lineLayer];
-    [_mainScroll setContentOffset:CGPointMake(currentOffset, _mainScroll.contentOffset.y) animated:YES];
+    [_mainScroll setContentOffset:CGPointMake(MIN(currentOffset, _mainScroll.contentSize.width - _mainScroll.frame.size.width), _mainScroll.contentOffset.y) animated:YES];
 }
 
 - (void) handleTap:(UITapGestureRecognizer *) recognizer {
@@ -241,28 +194,22 @@
     UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *) recognizer;
     CGPoint location = [pan locationInView:pan.view];
     CGPoint delta = [pan translationInView:pan.view];
-    CGFloat widthRatio = _mainScroll.contentSize.width / _mainScroll.frame.size.width * 0.5;
+    CGFloat widthRatio = (_mainScroll.contentSize.width - _mainScroll.frame.size.width) / _mainScroll.frame.size.width;
     CGFloat movingGap = (delta.x - forePoint.x) * widthRatio;
 
     if (_mainScroll.contentOffset.x <= 0) {
-        movingGap *= 0.01;
+        movingGap *= _mainScroll.frame.size.width / _mainScroll.contentSize.width;
     } else if (_mainScroll.contentOffset.x >= _mainScroll.contentSize.width - _mainScroll.frame.size.width) {
-        movingGap *= 0.01;
+        movingGap *= _mainScroll.frame.size.width / _mainScroll.contentSize.width;
     }
-
     if (pan.state == UIGestureRecognizerStateBegan) {
     } else if (pan.state == UIGestureRecognizerStateChanged) {
-        _menuLayer.opacity = 0.0f;
         bevelLayer.opacity = 1.0f;
         [CATransaction setDisableActions:YES];
         bevelLayer.position = location;
         [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentOffset.x + movingGap, _mainScroll.contentOffset.y) animated:NO];
     } else {
         [CATransaction setDisableActions:NO];
-        if (!isSlideRegisterMode) {
-            _menuLayer.opacity = 1.0f;
-        }
-        
         bevelLayer.opacity = 0.0f;
         if (_mainScroll.contentOffset.x < 0) {
             [_mainScroll setContentOffset:CGPointMake(0, _mainScroll.contentOffset.y) animated:YES];
@@ -270,31 +217,36 @@
             [_mainScroll setContentOffset:CGPointMake(_mainScroll.contentSize.width - _mainScroll.frame.size.width, _mainScroll.contentOffset.y) animated:YES];
         }
     }
-    _slideLayer.position = CGPointMake(_mainScroll.contentOffset.x * (_bottomView.frame.size.width / (_mainScroll.contentSize.width)), 0);
+    _slideLayer.position = CGPointMake(_mainScroll.contentOffset.x * (_bottomView.frame.size.width / (_mainScroll.contentSize.width - _mainScroll.frame.size.width)), 0);
     forePoint = delta;
 }
 
 - (void) changeSlideSetEnable:(BOOL) enable {
     if (enable) {
         isSlideRegisterMode = YES;
-        _menuLayer.opacity = 0.0f;
-        _bottomView.layer.contents = (id)[UIImage imageNamed:@"selectMode"].CGImage;
+        _selectModeLayer.opacity = 1.0f;
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
     } else {
         isSlideRegisterMode = NO;
-        _menuLayer.opacity = 1.0f;
-        _bottomView.layer.contents = nil;
+        _bottomView.layer.contents = (id) [UIImage imageNamed:@"controllPannel"].CGImage;
+        _selectModeLayer.opacity = 0.0f;
     }
 }
 
 - (void) handleLong:(UILongPressGestureRecognizer *) recognizer {
-    if (isSlideRegisterMode) {
-        return;
-    }
+    
     if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if (isSlideRegisterMode) {
+            [self changeSlideSetEnable:NO];
+            if (_delegate && [_delegate respondsToSelector:@selector(changeSlideSelectMode:)]) {
+                [_delegate changeSlideSelectMode:NO];
+            }
+            return;
+        }
+        
         [self changeSlideSetEnable:YES];
-        if (_delegate && [_delegate respondsToSelector:@selector(changeSlideSelectMode)]) {
-            [_delegate changeSlideSelectMode];
+        if (_delegate && [_delegate respondsToSelector:@selector(changeSlideSelectMode:)]) {
+            [_delegate changeSlideSelectMode:YES];
         }        
     }
 }

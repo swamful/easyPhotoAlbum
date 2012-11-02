@@ -27,6 +27,8 @@
 		6C9732B11629A02C00CD5D18 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9732AD16299BC900CD5D18 /* MainViewController.m */; };
 		6C9CADAA1633FD3C004C4974 /* ALAssetsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADA91633FD3C004C4974 /* ALAssetsManager.m */; };
 		6C9CADAD16340B66004C4974 /* IndexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADAC16340B66004C4974 /* IndexView.m */; };
+		6C9CADBF1643CB0C004C4974 /* GuideView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C9CADBE1643CB0B004C4974 /* GuideView.m */; };
+		6C9CADC21643FF43004C4974 /* controllPannel.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C9CADC11643FF43004C4974 /* controllPannel.png */; };
 		A815F667163E4DC600BE1AB9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A815F666163E4DC600BE1AB9 /* AudioToolbox.framework */; };
 		A82BD980163A4B7600469697 /* SlideShowView.m in Sources */ = {isa = PBXBuildFile; fileRef = A82BD97F163A4B7600469697 /* SlideShowView.m */; };
 		A84DCACB16391FD600479A5F /* DetailImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = A84DCACA16391FD600479A5F /* DetailImageView.m */; };
@@ -92,6 +94,9 @@
 		6C9CADAB16340B66004C4974 /* IndexView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexView.h; sourceTree = "<group>"; };
 		6C9CADAC16340B66004C4974 /* IndexView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IndexView.m; sourceTree = "<group>"; };
 		6C9CADAE163438BD004C4974 /* UIConstans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIConstans.h; sourceTree = "<group>"; };
+		6C9CADBD1643CB0B004C4974 /* GuideView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GuideView.h; sourceTree = "<group>"; };
+		6C9CADBE1643CB0B004C4974 /* GuideView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GuideView.m; sourceTree = "<group>"; };
+		6C9CADC11643FF43004C4974 /* controllPannel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = controllPannel.png; sourceTree = "<group>"; };
 		A815F666163E4DC600BE1AB9 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A82BD97E163A4B7600469697 /* SlideShowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlideShowView.h; sourceTree = "<group>"; };
 		A82BD97F163A4B7600469697 /* SlideShowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SlideShowView.m; sourceTree = "<group>"; };
@@ -212,6 +217,8 @@
 				A84DCACA16391FD600479A5F /* DetailImageView.m */,
 				A82BD97E163A4B7600469697 /* SlideShowView.h */,
 				A82BD97F163A4B7600469697 /* SlideShowView.m */,
+				6C9CADBD1643CB0B004C4974 /* GuideView.h */,
+				6C9CADBE1643CB0B004C4974 /* GuideView.m */,
 			);
 			path = PhotoAlbum;
 			sourceTree = "<group>";
@@ -261,6 +268,7 @@
 			isa = PBXGroup;
 			children = (
 				A883E35316437FF5003BF1EE /* Double_tap.png */,
+				6C9CADC11643FF43004C4974 /* controllPannel.png */,
 				A883E35416437FF5003BF1EE /* Pinch.png */,
 				A883E35516437FF5003BF1EE /* Pressed.png */,
 				A883E35616437FF5003BF1EE /* Spread.png */,
@@ -368,6 +376,7 @@
 				A883E35816437FF5003BF1EE /* Pinch.png in Resources */,
 				A883E35916437FF5003BF1EE /* Pressed.png in Resources */,
 				A883E35A16437FF5003BF1EE /* Spread.png in Resources */,
+				6C9CADC21643FF43004C4974 /* controllPannel.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +426,7 @@
 				6C9CADAD16340B66004C4974 /* IndexView.m in Sources */,
 				A84DCACB16391FD600479A5F /* DetailImageView.m in Sources */,
 				A82BD980163A4B7600469697 /* SlideShowView.m in Sources */,
+				6C9CADBF1643CB0C004C4974 /* GuideView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

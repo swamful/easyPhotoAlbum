@@ -23,6 +23,7 @@
     BOOL isSlideRegisterMode;
     CALayer *bevelLayer;
     CALayer *_menuLayer;
+    CATextLayer *_selectModeLayer;
 }
 @property (nonatomic) id<IndexViewDelegate> delegate;
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList currentIndex:(NSInteger) currentIndex;
@@ -32,5 +33,5 @@
 @protocol IndexViewDelegate <NSObject>
 - (void) changeToSlideView;
 - (void) changeToRandomView;
-- (void) changeSlideSelectMode;
+- (void) changeSlideSelectMode:(BOOL) isSlide;
 @end
