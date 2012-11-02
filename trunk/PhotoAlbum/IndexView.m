@@ -143,7 +143,6 @@
 }
 
 - (void) beginAnimation {
-    NSLog(@"here");
     for (CALayer *layer in [_mainScroll.layer sublayers]) {
         if ([layer.name isEqualToString:@"textLayer"]) {
             layer.opacity = 0.0f;
@@ -186,7 +185,7 @@
     NSInteger thumbSize = 45;
     NSInteger thumbMargin = 3;
 
-    NSLog(@"list count : %d", [allLayerList count]);
+//    NSLog(@"list count : %d", [allLayerList count]);
     CGFloat lastWidth = 0;
  
     for (NSDictionary *dic in allLayerList) {
