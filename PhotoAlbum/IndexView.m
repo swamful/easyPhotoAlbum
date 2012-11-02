@@ -137,7 +137,10 @@
     CGFloat currentOffset;
     NSInteger thumbSize = 45;
     NSInteger thumbMargin = 3;
-
+    NSInteger numOfRow = 6;
+    if ([UIScreen mainScreen].bounds.size.height == 568) {
+        numOfRow = 7;
+    }
 //    NSLog(@"list count : %d", [allLayerList count]);
     CGFloat lastWidth = 0;
  
@@ -160,7 +163,7 @@
         for (int j = 0 ; j < [[dic objectForKey:key] count] ; j ++) {
 
             UIButton *btn = [(NSArray*)[dic objectForKey:key] objectAtIndex:j];
-            btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/6), thumbMargin + (thumbSize + thumbMargin) * (j%6), thumbSize, thumbSize);
+            btn.frame = CGRectMake(thumbMargin + (thumbSize + thumbMargin) * (j/numOfRow), thumbMargin + (thumbSize + thumbMargin) * (j%numOfRow), thumbSize, thumbSize);
 //            btn.layer.shouldRasterize = YES;
             [view addSubview:btn];
             if (btn.tag == currentIndex) {
@@ -169,7 +172,7 @@
 
         }
         
-        lastWidth = (([[dic objectForKey:key] count] -1) / 6) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) + lastWidth;
+        lastWidth = (([[dic objectForKey:key] count] -1) / numOfRow) * (thumbMargin + thumbSize) + (thumbMargin + thumbSize + 5) + lastWidth;
         _mainScroll.contentSize = CGSizeMake(lastWidth + thumbMargin, _mainScroll.frame.size.height);
     }
     CALayer *lineLayer = [CALayer layer];
@@ -184,7 +187,6 @@
     if (isSlideRegisterMode) {
         return;
     }
-    [[UIApplication sharedApplication] setStatusBarHidden:YES];
     if (_delegate && [_delegate respondsToSelector:@selector(changeToSlideView)]) {
         [_delegate changeToSlideView];
     }
