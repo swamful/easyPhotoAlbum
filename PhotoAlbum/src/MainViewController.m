@@ -140,9 +140,13 @@
 
 
 - (void) handleScale:(UIPinchGestureRecognizer *) recognizer {
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
     if (showingViewType == SLIDESHOWVIEW) {
         [slideShowView showInvalidate];
+    } else if (showingViewType == DETAILEDVIEW) {
+        currentIndex = detailedView.currentIndex;
     }
+    
     if (recognizer.scale < 1) {
         [self changeToIndexView];
     }
@@ -173,8 +177,12 @@
             [self.view addSubview:galleryView];
             break;
         case INDEXVIEW:
-            indexView = [[IndexView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withAllLayerList:_allLayerList];
+            indexView = [[IndexView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) withAllLayerList:_allLayerList currentIndex:currentIndex];
             indexView.delegate = self;
+            if (!isOverFirstLoad) {
+                [indexView beginAnimation];
+                isOverFirstLoad = YES;
+            }
             [self.view addSubview:indexView];
             break;
         case DETAILEDVIEW:
@@ -182,8 +190,9 @@
             [self.view addSubview:detailedView];
             break;
         case SLIDESHOWVIEW:
-            [UIApplication sharedApplication].idleTimerDisabled = YES; 
-            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
+            [UIApplication sharedApplication].idleTimerDisabled = YES;
+            NSLog(@"is status bar:%d", [[UIApplication sharedApplication] isStatusBarHidden]);
+            slideShowView = [[SlideShowView alloc] initWithFrame:CGRectMake(0, -10, [[UIScreen mainScreen] applicationFrame].size.width, [[UIScreen mainScreen] applicationFrame].size.height) slideList:_slideShowIndexList];
             [self.view addSubview:slideShowView];
             break;
         default:

@@ -39,6 +39,7 @@
 }
 @end
 @implementation DetailedView
+@synthesize currentIndex;
 - (CATransform3D) getViewTransForm3DIdentity {
     CATransform3D transform = CATransform3DIdentity;
     transform.m34 = - 1.0f/ 2000.0f;

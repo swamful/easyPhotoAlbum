@@ -25,8 +25,9 @@
     CALayer *_menuLayer;
 }
 @property (nonatomic) id<IndexViewDelegate> delegate;
-- (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
+- (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList currentIndex:(NSInteger) currentIndex;
 - (void)changeSlideSetEnable:(BOOL) enable;
+- (void) beginAnimation;
 @end
 @protocol IndexViewDelegate <NSObject>
 - (void) changeToSlideView;
