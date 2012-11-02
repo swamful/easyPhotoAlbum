@@ -34,8 +34,6 @@
         
         _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 100, self.frame.size.width, 100)];
         _bottomView.backgroundColor = [UIColor blackColor];
-        _bottomView.layer.contents = (id)[UIImage imageNamed:@"menu"].CGImage;
-
         [self addSubview:_bottomView];
         
         _slideLayer = [CALayer layer];
@@ -45,6 +43,7 @@
         _slideLayer.opacity = 0.3;
         [_bottomView.layer addSublayer:_slideLayer];
         
+        [self makeMenuLayer];
         bevelLayer = [CALayer layer];
         [bevelLayer setBounds:CGRectMake(0.0f, 0.0f, 50.0f, 50.0f)];
         bevelLayer.opacity = 0.0f;
@@ -75,6 +74,67 @@
         isPanning = NO;
     }
     return self;
+}
+
+- (void) makeMenuLayer {
+    _menuLayer = [CALayer layer];
+    _menuLayer.bounds = CGRectMake(0, 0, _bottomView.frame.size.width, _bottomView.frame.size.height);
+    _menuLayer.position = CGPointMake(_bottomView.frame.size.width / 2, _bottomView.frame.size.height / 2);
+    _menuLayer.backgroundColor = [UIColor whiteColor].CGColor;
+//    _menuLayer.opacity = 0.5;
+    [_bottomView.layer addSublayer:_menuLayer];
+    
+    CALayer *dTapLayer = [CALayer layer];
+    dTapLayer.frame = CGRectMake(10, 10, 40, 40);
+    dTapLayer.contents = (id)[UIImage imageNamed:@"Double_tap"].CGImage;
+    [_menuLayer addSublayer:dTapLayer];
+    
+    CATextLayer *dTLayer = [CATextLayer layer];
+    dTLayer.frame = CGRectMake(60, 20, 70, 30);
+    dTLayer.string = @"Slide Show";
+    dTLayer.foregroundColor = [UIColor redColor].CGColor;
+    dTLayer.fontSize = 13.0f;
+    dTLayer.alignmentMode = kCAAlignmentCenter;
+    [_menuLayer addSublayer:dTLayer];
+    
+    CALayer *pinchLayer = [CALayer layer];
+    pinchLayer.frame = CGRectMake(140, 50, 60, 40);
+    pinchLayer.contents = (id)[UIImage imageNamed:@"Pinch"].CGImage;
+    [_menuLayer addSublayer:pinchLayer];
+
+    CATextLayer *pTLayer = [CATextLayer layer];
+    pTLayer.frame = CGRectMake(200, 60, 100, 30);
+    pTLayer.string = @"Closw View";
+    pTLayer.foregroundColor = [UIColor redColor].CGColor;
+    pTLayer.fontSize = 13.0f;
+    pTLayer.alignmentMode = kCAAlignmentCenter;
+    [_menuLayer addSublayer:pTLayer];
+
+    CALayer *spreadLayer = [CALayer layer];
+    spreadLayer.frame = CGRectMake(140, 10, 60, 40);
+    spreadLayer.contents = (id)[UIImage imageNamed:@"Spread"].CGImage;
+    [_menuLayer addSublayer:spreadLayer];
+
+    CATextLayer *sTLayer = [CATextLayer layer];
+    sTLayer.frame = CGRectMake(200, 20, 100, 30);
+    sTLayer.string = @"Random Show";
+    sTLayer.foregroundColor = [UIColor redColor].CGColor;
+    sTLayer.fontSize = 13.0f;
+    sTLayer.alignmentMode = kCAAlignmentCenter;
+    [_menuLayer addSublayer:sTLayer];
+
+    CALayer *pressLayer = [CALayer layer];
+    pressLayer.frame = CGRectMake(10, 50, 40, 40);
+    pressLayer.contents = (id)[UIImage imageNamed:@"Pressed"].CGImage;
+    [_menuLayer addSublayer:pressLayer];
+    
+    CATextLayer *prTLayer = [CATextLayer layer];
+    prTLayer.frame = CGRectMake(60, 60, 80, 30);
+    prTLayer.string = @"Select Slide \nPhotos";
+    prTLayer.foregroundColor = [UIColor redColor].CGColor;
+    prTLayer.fontSize = 13.0f;
+    prTLayer.alignmentMode = kCAAlignmentCenter;
+    [_menuLayer addSublayer:prTLayer];
 }
 
 - (void) dealloc {

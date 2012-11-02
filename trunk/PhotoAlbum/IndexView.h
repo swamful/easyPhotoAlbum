@@ -22,6 +22,7 @@
     BOOL isPanning;
     BOOL isSlideRegisterMode;
     CALayer *bevelLayer;
+    CALayer *_menuLayer;
 }
 @property (nonatomic) id<IndexViewDelegate> delegate;
 - (id)initWithFrame:(CGRect)frame withAllLayerList:(NSArray*) allLayerList;
